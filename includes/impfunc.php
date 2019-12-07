@@ -1,0 +1,3 @@
+function impfunc($obj){
+    
+}
