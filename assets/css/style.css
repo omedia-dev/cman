@@ -1305,12 +1305,16 @@ h3.section-title {
 .filter-result .item-title {
   margin-bottom: 0!important;
 }
+.filter-result .item-title a{
+  color:#000;
+}
 .filter-result .item-short-info {
   font-size: 18px;
   font-weight: 600;
 }
 .filter-result .item-location {
   padding-left: 35px;
+  line-height: 34px;
   position: relative;
 }
 .filter-result .item-location span {

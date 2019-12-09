@@ -17,10 +17,11 @@
     <div class="col-12 col-md-7 item-info-wrap">
         <div>
             <!-- <p><?php echo get_the_date() ." " . get_the_time();  ?></p> -->
-            <h3 class="item-title"><?php the_title(); ?>
-                <?php if(get_field('xml-feed')){
-                    //echo "*";
-                } ?>
+            <h3 class="item-title"><h3 class="item-title">
+                <a href="<?php echo get_permalink(); ?>" target="_blank">
+                    <?php the_title(); ?>
+                </a>
+            </h3>
             </h3>
             <div class="item-short-info">
                 <?php

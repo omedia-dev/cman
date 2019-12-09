@@ -352,30 +352,28 @@ function custom_favorites_listing_html($html, $markup_template, $post_id, $list_
 	$main_img = get_field('dom-gallery', $post_id)[0];
 	$html = '<a href=' . get_permalink($post_id) .'" class="row favorlist" data-postid="' . $post_id .'">
 		<div class="col-12 col-md-8 pl-md-5">
-			<div class="favorlist__title">' . get_field('dom-title', $post_id) . '</div>';
+			<div class="favorlist__title">' . get_the_title($post_id) . '</div>';
+		
+			$objtype = get_post_type_object( get_post_type( $post_id ) );
 
-		if (get_field('dom-type', $post_id) == "Квартира") {
-			$info = get_field('dom-type-flat',  $post_id);
-			//3-х комн. кв., 98м<sup>2</sup>, 6/31 этаж
-			$line1Text = $info['dom-rooms'] . ", " .
-				$info['dom-area'] . "м<sup>2</sup>, " .
-				$info['dom-floor'] . '/' . $info['dom-floors-total'] . " этаж";
-			$html .= '<div class="favorlist__type">' . $line1Text . '</div>';
-		} else {
-			$info2 = get_field('dom-type-home', $post_id);
-			$line2Text = $info2['dom-floors-total'] . "-эт. " . get_field('dom-type',  $post_id) .
-				", площадью " . $info2['lot-value'] . " м<sup>2</sup>, на участке " . $info2['lot-area'] . " cот.";
-			$html .= '<div class="favorlist__type">' . $line2Text . '</div>';
+		$html .= '<div class="favorlist__type">' . $objtype->labels->singular_name . '</div>';
+
+		if(get_field('dom-locality-name', $post_id)){
+			$line2Text = "г. " . get_field('dom-locality-name', $post_id) . ", " . get_field('dom-address', $post_id);
+			$html .=  '<div class="favorlist__addr">' . $line2Text . '</div>';
 		}
 
-		$line2Text = "г. " . get_field('dom-locality-name', $post_id) . ", " . get_field('dom-address', $post_id);
-        $html .=  '<div class="favorlist__addr">' . $line2Text . '</div>';
-
-		$html .= '</div><div class="col-8 col-md-3">
-					<div class="favorlist__price">' .
-						number_format ( (int)get_field('dom-price', $post_id), 0, ",", " " ) .
-					'руб</div>
-				</div>';
+		$html .= '</div>';
+		
+		if(get_post_type( $post_id ) != 'nedv_jk'){
+			$html .= '<div class="col-8 col-md-3">
+						<div class="favorlist__price">' .
+							number_format ( (int)get_field('dom-price', $post_id), 0, ",", " " ) .
+						'руб</div>
+					</div>';
+		} else {
+			$html .= '<div class="col-8 col-md-3"></div>';
+		}
 		$html .= '<div class="col-4 col-md-1">
 					<div class="favorlist__action">' .
 						do_shortcode('[favorite_button post_id=' . $post_id . ']') . '

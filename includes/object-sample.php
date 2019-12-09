@@ -18,16 +18,15 @@
     <div class="col-12 col-md-7 item-info-wrap">
         <div>
             <!-- <p><?php echo get_the_date() ." " . get_the_time();  ?></p> -->
-            <h3 class="item-title"><?php the_field('dom-title'); ?>
-                <?php if(get_field('xml-feed')){
-                    //echo "*";
-                } ?>
+            <h3 class="item-title">
+                <a href="<?php echo get_permalink(); ?>" target="_blank">
+                    <?php the_field('dom-title'); ?>
+                </a>
             </h3>
             <div class="item-short-info">
                 <?php
                 if (strtolower(trim(get_field('dom-type'))) == "квартира") {
                     $info = get_field('dom-type-flat');
-                    //3-х комн. кв., 98м<sup>2</sup>, 6/31 этаж
                     $line1Text = $info['dom-rooms'] . ", " .
                         $info['dom-area'] . "м<sup>2</sup>, " .
                         $info['dom-floor'] . '/' . $info['dom-floors-total'] . " этаж";
@@ -49,12 +48,14 @@
         </div>
         <div class="item-location">
             <span>
-                <?php
-                //Адрес
-                $line2Text = get_field('dom-locality-name') . " " .
-                    get_field('dom-address');
-                echo $line2Text;
-                ?>
+                <a href="<?php echo get_permalink(); ?>" target="_blank" class="link-default">
+                    <?php
+                    //Адрес
+                    $line2Text = get_field('dom-locality-name') . " " .
+                        get_field('dom-address');
+                    echo $line2Text;
+                    ?>
+                </a>
             </span>
         </div> <!-- //.item-location -->
         <div class="item-price">
