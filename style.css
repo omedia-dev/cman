@@ -15,7 +15,7 @@ html.glightbox-open{
 .screen-reader-text{
 	display: none;
 }
-.first-caps::first-letter{
+.first-caps:first-letter{
 	text-transform: uppercase;
 }
 

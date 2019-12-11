@@ -18,12 +18,12 @@
     <div class="col-12 col-md-7 item-info-wrap">
         <div>
             <!-- <p><?php echo get_the_date() ." " . get_the_time();  ?></p> -->
-            <h3 class="item-title">
+            <h3 class="item-title first-caps">
                 <a href="<?php echo get_permalink(); ?>" target="_blank">
                     <?php the_field('dom-title'); ?>
                 </a>
             </h3>
-            <div class="item-short-info">
+            <div class="item-short-info first-caps">
                 <?php
                 if (strtolower(trim(get_field('dom-type'))) == "квартира") {
                     $info = get_field('dom-type-flat');

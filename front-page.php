@@ -124,7 +124,7 @@ $best_args = array(
     'relation' => 'AND',
     array(
       'key'     => 'bestof',
-      'compare' => 'EXISTS',
+      'value' => '1',
     ),
   ],
 );
