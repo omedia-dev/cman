@@ -108,7 +108,7 @@ if (isset($_GET["max"]) && strip_tags($_GET["max"]) != "") {
 if (isset($_GET["loc"]) && strip_tags($_GET["loc"]) != "") {
     $loc = (string) strip_tags($_GET["loc"]);
 	array_push($filter_array,   array(
-    'key'     => array('dom-title', 'dom-address','dom-locality-name', 'dom-metro'),
+    'key'     => array('search-loc', 'dom-title', 'dom-address','dom-locality-name', 'dom-metro'),
     'compare' => 'LIKE',
     'value'   => $loc,
  ));

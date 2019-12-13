@@ -54,8 +54,20 @@ get_header();
             </div>
             <p class="text-muted">Объвлений: <?php echo count($offers_array); ?></p>
 
-            <div class="progress mt-4">
-                <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger jsProgress" role="progressbar" style="width: 0%">0%</div>
+            <div class="deletestep d-none pt-5 pb-2">
+                <div class="spinner-border text-dark align-middle" role="status">
+                    <span class="sr-only"></span>
+                </div>
+                <i class="far fa-check-circle h2 align-middle text-success d-none"></i>
+                <div class="d-inline-block align-middle pl-2 deletetext">Этап 1. Очистка старых объявлений...</div>
+            </div>
+
+
+            <div class="importstep pt-5 pb-2 d-none">
+                <div class="pb-2">Этап 2. Импорт объявлений...</div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger jsProgress" role="progressbar" style="width: 5%">5%</div>
+                </div>
             </div>
 
             <div class="text-center py-4">
@@ -66,7 +78,7 @@ get_header();
             
             
             
-            <h2 class="jsProc"></h2>
+            <h2 class="jsProc pb-3"></h2>
             <div class="jsResult">
         
             </div>
@@ -77,6 +89,35 @@ get_header();
     'use strict';
     $(document).ready(function() {
         
+
+        function goDeleteAll(){
+        
+            $.get({
+                    url: '/del/',
+                    data: {
+                        'terminate': '<?php echo $xmlFile; ?>',
+                        'ajax': 1,
+                    },
+                    beforeSend: function() {
+                        $('.deletestep').removeClass('d-none');
+                        console.log('выполняется удаление всего фида...');
+                    },
+                })
+                .done(function(data) {
+                    $('.deletestep .spinner-border').addClass('d-none');
+                    $('.deletestep .far').removeClass('d-none');
+                    $('.importstep').removeClass('d-none');
+                    goReady(data, -1);
+                })
+                .fail(function(data) {
+                    document.querySelector('.jsResult').innerHTML = "Ошибка " + data.status;
+                    console.log(data);
+                    $('.deletetext').innerHTML = "Ошибка " + data.status;
+                });
+
+            
+        }
+
         function goImport(step){
 
             $.post({
@@ -133,6 +174,8 @@ get_header();
             $('.jsStopButton').hide();
         }
         
+        
+
 
 
         let current = 0;
@@ -142,9 +185,12 @@ get_header();
         $('.jsGoButton').on('click', function(e) {
             pause = false;
             $(this).hide();
+            $('.jsResult').text("");
             $('.jsProc').text("Начат импорт. Не закрывайте страницу...");
             $('.jsProgress').addClass('progress-bar-animated');
-            goImport(current);
+            
+            goDeleteAll();
+            //goImport(current);
             $('.jsStopButton').show();
         });
 

@@ -36,7 +36,7 @@
         <div class="item-location">
             <span>
                 <a class="link-default" href="<?php echo get_permalink( (int)get_field('building-id') ); ?>">
-                    ЖК <?php echo get_the_title( (int)get_field('building-id') ); ?>
+                    ЖК <?php echo str_replace("ЖК ", "", get_the_title( (int)get_field('building-id') ) ); ?>
                 </a>
                 <?php
                     if(get_field('building-section')){

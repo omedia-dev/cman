@@ -93,17 +93,21 @@ get_header();
                         ?>
                 <div class="row jsOfferLine border">
                     <div class="col-9">
-                        <strong><?php echo $offerindex + 1;
-                                        $offerindex++; ?>. </strong>
+                        <strong>
+                            <?php
+                                echo $offerindex + 1;
+                                $offerindex++; 
+                            ?>.
+                        </strong>
                         <small>ID: <?php echo (string) $offer['internal-id'] ?> </small>
                         <strong>Тип объявления: </strong><?php echo $offer->type; ?> -
                         <strong>Категория: </strong>
                         <?php
-                                echo (string) $offer->category;
-                                if ($newFlat) {
-                                    echo "/новостройка (" . (string) $offer->{'building-name'} . ")";
-                                }
-                                ?>
+                            echo (string) $offer->category;
+                            if ($newFlat) {
+                                echo "/новостройка (" . (string) $offer->{'building-name'} . ")";
+                            }
+                        ?>
                     </div>
                     <div class="col-2">
                         <button 
@@ -126,42 +130,11 @@ get_header();
 </div>
 
 
-<div class="hystmodal" id="importModal" aria-hidden="true">
-    <div class="hystmodal__wrap abs-bf">
-        <div class="hystmodal__window formmodal" role="dialog" aria-modal="true">
-            <button class="modal__close flexi" data-hystclose><span class="lnr lnr-cross"></span></button>
-            <div class="formmodal__wrap">
-                <img class="d-block mx-auto" src="<?php echo get_template_directory_uri(); ?>/assets/img/loader.svg" alt="">
-                <div class="text-center h3 py-3">Идёт импорт. <br>Не закрывате страницу.</div>
-            </div>
-        </div>
-    </div>
-</div><!-- //#jsForm1Modal -->
-
-<div class="hystmodal" id="importokModal" aria-hidden="true">
-    <div class="hystmodal__wrap abs-bf">
-        <div class="hystmodal__window formmodal" style="width:700px" role="dialog" aria-modal="true">
-            <button class="modal__close flexi" data-hystclose><span class="lnr lnr-cross"></span></button>
-            <div class="formmodal__wrap">
-                <img class="d-block mx-auto" src="<?php echo get_template_directory_uri(); ?>/assets/img/icon_gdpr.png" alt="">
-                <div class="text-center h3 py-3">Импорт завершен</div>
-                <div class="impmodal-result py-2">
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div><!-- //#jsForm1Modal -->
 
 <script>
     (function($) {
         'use strict';
         $(document).ready(function() {
-
-            var impMod = new HystModal.modal({
-                linkAttributeName: 'data-hystmodal',
-            });
-            let modalWrap = document.querySelector('.impmodal-result');
 
 
             function importLine(link) {
@@ -176,7 +149,7 @@ get_header();
                         url: thisURL,
                         data: {
                             'myxml': thisXML,
-                            'feedurl': "<?php echo urlencode(get_field('xml-feed')[0]['xml-url']); ?>",
+                            'feedurl': "<?php echo urlencode($analized_url); ?>",
                         },
                         beforeSend: function() {
                             selfRow.find('.jsLoader').toggleClass('d-none');
@@ -192,9 +165,7 @@ get_header();
                         }
                     })
                     .fail(function(data) {
-                        document.querySelector('#importokModal .h3').innerHTML = "Ошибка " + data.status;
-                        modalWrap.innerHTML = data.responseText;
-                        impMod.open('#importokModal');
+                        console.log("Ошибка: " + data.status);
                     });
             }
 
@@ -202,31 +173,6 @@ get_header();
                 importLine(this);
             });
 
-            $('.jsFullImport').on('click', function(e) {
-                console.log($(this).data('url'));
-                $.post({
-                        url: '/import/',
-                        data: {
-                            'full': '1',
-                            'fullurl': $(this).data('url'),
-                            'feedurl': "<?php echo urlencode(get_field('xml-feed')[0]['xml-url']); ?>",
-                        },
-                        beforeSend: function() {
-                            document.querySelector('.impmodal-result').innerHTML = "";
-                            impMod.open('#importModal');
-                        },
-                    })
-                    .done(function(data) {
-                        modalWrap.innerHTML = data;
-                        impMod.open('#importokModal');
-                    })
-                    .fail(function(data) {
-                        document.querySelector('#importokModal .h3').innerHTML = "Ошибка " + data.status;
-                        console.log(data);
-                        modalWrap.innerHTML = data.responseText;
-                        impMod.open('#importokModal');
-                    });
-            });
         });
     }(jQuery));
 </script>

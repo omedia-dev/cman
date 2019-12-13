@@ -8,6 +8,12 @@ if( !is_super_admin() ){
     exit();
 }
 
+if( isset($_GET['ajax'])){
+    get_template_part('includes/delete-feed-ajax');
+    exit();
+}
+
+
 
 get_header(); ?>
 

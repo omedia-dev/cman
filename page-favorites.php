@@ -24,11 +24,11 @@ get_header(); ?>
         <?php the_clear_favorites_button(); ?>
     </div>
     <?php else: ?>
-        <div class="emptyblock my-5 pt-5 text-center">
+        <div class="emptyblock my-5 py-5 text-center">
             <div class="emptyblock__img h1"><span class="lnr lnr-apartment"></span></div>
             <div class="h1">Вы не добавили <br>объектов в избранное</div>
             <div class="my-5">
-            <a href="/nedv_arenda/" class="btn btn-default">Перейти в каталог</a>
+            <a href="/catalog/" class="btn btn-default">Перейти в каталог</a>
             </div>
         </div>
     <?php endif; ?>

@@ -11,7 +11,7 @@ if( !is_super_admin() ){
 
 
 //Функции
-get_template_part('includes/xml-importers');
+get_template_part('includes/xml-importers-v2');
 
 
 
@@ -81,6 +81,6 @@ if ($xml23){
 
 } else {
 
-    echo "error";
+    echo "Ошибка. Переданных данных нет, или они не распознаны";
 
 }

@@ -590,6 +590,10 @@ span.wpcf7-list-item{
 }
 #acf-newobject .acf-notice p{
 }
+#acf-newobject p.description{
+	font-size: 12px;
+    color: #bbb;
+}
 #acf-newobject .acf-label label{
 	font-weight: 400;
 	font-size: 14px;

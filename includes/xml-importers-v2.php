@@ -1,11 +1,11 @@
 <?php
-
+/* Version 2 */
 /* Функция обеспечивает добавление/обновление поста вторички и всех полей */
 function impfunc($obj){
     $xml23 = $obj;
 
-    $new_post_itle = "";
-    $domLocation =  (string) $xml23->location->{'locality-name'};
+    $new_post_title = "";
+    $domLocation = (string) $xml23->location->{'locality-name'};
     if( (string) $xml23->location->{'sub-locality-name'} ){
         $domLocation .= ", " . (string) $xml23->location->{'sub-locality-name'};
     } elseif ( (string) $xml23->location->address ){
@@ -14,7 +14,7 @@ function impfunc($obj){
     
     if( mb_strtolower((string) $xml23->category) == "квартира" ){
         //Квартира
-        $new_post_itle  = (string) $xml23->rooms . '-комн. квартира, ' . $domLocation;
+        $new_post_title  = (string) $xml23->rooms . '-комн. квартира, ' . $domLocation;
     } elseif ( in_array( mb_strtolower((string) $xml23->category), array("дом", "коттедж") ) ) {
     
         if( (string) $xml23->{'floors-total'} ){
@@ -23,18 +23,18 @@ function impfunc($obj){
             $florsTotal = "";
         }
     
-        $new_post_itle  = $florsTotal . (string) $xml23->category . ". " . $domLocation;
+        $new_post_title  = $florsTotal . (string) $xml23->category . ". " . $domLocation;
     
     } else {
     
-        $new_post_itle = (string) $xml23->category . ". " . $domLocation; 
+        $new_post_title = (string) $xml23->category . ". " . $domLocation; 
     
     }
 
     $metaSuperArray = array();
     
     $postSetting = array(
-        'post_title'      => $new_post_itle,
+        'post_title'      => $new_post_title,
         'post_content'    => "",
         'comment_status'  => 'closed',
         'post_status'     => 'publish',
@@ -57,11 +57,21 @@ function impfunc($obj){
 
     $metaSuperArray['xml-offer-id'] = (string)$xml23['internal-id'];
 
-    $metaSuperArray['dom-locality-name'] = $domLocation;
+
+    /* LOCATION */
+    $metaSuperArray['dom-locality-name'] = (string) $xml23->location->{'locality-name'};
+
+    $metaSuperArray['dom-district'] = (string) $xml23->location->{'district'};
+
+    $metaSuperArray['dom-region'] = (string) $xml23->location->{'region'};
+
+    $metaSuperArray['dom-sub-locality'] = (string) $xml23->location->{'sub-locality-name'};
+
+    $metaSuperArray['dom-address'] = (string) $xml23->location->address;
 
     $metaSuperArray['dom-metro'] = (string) $xml23->location->metro->name;
 
-    $metaSuperArray['dom-address'] = (string) $xml23->location->address;
+    $metaSuperArray['dom-time-on-foot'] = (string) $xml23->location->metro->{'time-on-foot'};
 
     $metaSuperArray['dom-direction'] = (string) $xml23->location->direction;
 
@@ -73,12 +83,13 @@ function impfunc($obj){
         "lng" => (string) $xml23->location->longitude,
         "zoom" => "13", 
     );
+    /* END LOCATION */
 
-    $metaSuperArray['dom-time-on-foot'] = (string) $xml23->location->metro->{'time-on-foot'};
+
 
     $metaSuperArray['dom-price'] = (string) $xml23->price->value;
 
-    $metaSuperArray['dom-title'] = $new_post_itle;
+    $metaSuperArray['dom-title'] = $new_post_title;
 
     $metaSuperArray['dom_description'] = trim((string) $xml23->description);
 
@@ -92,7 +103,7 @@ function impfunc($obj){
 
     $metaSuperArray['dom-type'] = mb_strtolower((string) $xml23->category);
 
-
+    $metaSuperArray['deal-status'] = (string) $xml23->{'deal-status'};
     
     
     if( (string) $xml23->haggle ){
@@ -117,10 +128,10 @@ function impfunc($obj){
         $metaSuperArray['rent-pledge'] = "Нет";
     }
 
-    if( (string) $xml23->{'deal-status'} ){
-        $metaSuperArray['deal-status'] = (string) $xml23->{'deal-status'};
-    }
-    
+
+    //поле для фильтра в каталоге
+    $postSetting['filter-rooms'] = (string) $xml23->rooms;
+
     
     $metaSuperArray['dom-gallery-url'] = count($xml23->image);
     $metaSuperArray['_dom-gallery-url'] = "field_5dd5c99e8a6c6";
@@ -136,7 +147,6 @@ function impfunc($obj){
         $metaSuperArray[$str2] = 'field_5dd5c9cd8a6c7';
         $galleryCounter ++;
     }
-
 
     $postSetting['meta_input'] = $metaSuperArray;
     
@@ -170,123 +180,114 @@ function impfunc($obj){
 
 
     // update_field( 'dom-gallery-url', $mediaArray, $newID );
-
-
-    //Квартира
-    if ( mb_strtolower((string) $xml23->category) == "квартира" ) {
-
-        //Эти поля необходимы для фильтрации
-        update_field( 'filter-rooms', (string) $xml23->rooms, $newID );
-        
-        $flat_features = array();
-        if( (string) $xml23->{'guarded-building'} ){
-            array_push($flat_features, 'guarded-building' );
-        }
-        if( (string) $xml23->{'access-control-system'} ){
-            array_push($flat_features, 'access-control-system' );
-        }
-        if( (string) $xml23->{'lift'} ){
-            array_push($flat_features, 'lift' );
-        }
-        if( (string) $xml23->{'rubbish-chute'} ){
-            array_push($flat_features, 'rubbish-chute' );
-        }
-        if( (string) $xml23->{'flat-alarm'} ){
-            array_push($flat_features, 'flat-alarm' );
-        }
-        if( (string) $xml23->{'alarm'} ){
-            array_push($flat_features, 'alarm' );
-        }
-        if( (string) $xml23->{'parking'} ){
-            array_push($flat_features, 'parking' );
-        }
-        if( (string) $xml23->{'security'} ){
-            array_push($flat_features, 'security' );
-        }
-        if( (string) $xml23->{'is-elite'} ){
-            array_push($flat_features, 'is-elite' );
-        }
+;
     
-        update_field( 'dom-type-flat', array(
-            "dom-rooms" => (string) $xml23->rooms . '-комн. квартира',
-            "dom-area"  => (string) $xml23->area->value,
-            "dom-living-space" => (string) $xml23->{'living-space'}->value,
-            "dom-kitchen-space" => (string) $xml23->{'kitchen-space'}->value,
-            "dom-building-type" => (string) $xml23->{'building-type'},
-            "dom-year" => (string) $xml23->{'built-year'},
-            "dom-floor" => (string) $xml23->floor,
-            "dom-floors-total" => (string) $xml23->{'floors-total'},
-            "dom-tall" => (string) $xml23->{'ceiling-height'},
-            "dom-bathroom-unit" => (string) $xml23->{'bathroom-unit'},
-            "dom-bwindow-view" => (string) $xml23->{'window-view'},
-            "dom-floor-covering" => (string) $xml23->{'floor-covering'},
-            "dom-balcony" => (string) $xml23->{'floor-covering'},
-            "dom-more-data" => "Да",
-            "dom-other" => $flat_features,
-        ), $newID );
-    
+    $flat_features = array();
+    if( (string) $xml23->{'guarded-building'} ){
+        array_push($flat_features, 'guarded-building' );
     }
-    
-    
-    //Дом
-    if ( in_array( mb_strtolower((string) $xml23->category), array("дом", "таунхаус", "участок", "коттедж", "коммерческая") ) ) {
-    
-        $home_featires = array();
-    
-        if( (string) $xml23->{'electricity-supply'} ){
-            array_push($home_featires, 'electricity-supply' );
-        }
-        if( (string) $xml23->{'water-supply'} ){
-            array_push($home_featires, 'water-supply' );
-        }
-        if( (string) $xml23->{'gas-supply'} ){
-            array_push($home_featires, 'gas-supply' );
-        }
-        if( (string) $xml23->{'sewerage-supply'} ){
-            array_push($home_featires, 'sewerage-supply' );
-        }
-        if( (string) $xml23->{'heating-supply'} ){
-            array_push($home_featires, 'heating-supply' );
-        }
-        if( (string) $xml23->{'toilet'} ){
-            array_push($home_featires, 'toilet' );
-        }
-        if( (string) $xml23->{'shower'} ){
-            array_push($home_featires, 'shower' );
-        }
-        if( (string) $xml23->{'pool'} ){
-            array_push($home_featires, 'pool' );
-        }
-        if( (string) $xml23->{'billiard'} ){
-            array_push($home_featires, 'billiard' );
-        }
-        if( (string) $xml23->{'sauna'} ){
-            array_push($home_featires, 'sauna' );
-        }
-        if( (string) $xml23->{'parking'} ){
-            array_push($home_featires, 'parking' );
-        }
-        if( (string) $xml23->{'alarm'} ){
-            array_push($home_featires, 'alarm' );
-        }
-        if( (string) $xml23->{'security'} ){
-            array_push($home_featires, 'security' );
-        }
-        if( (string) $xml23->{'is-elite'} ){
-            array_push($home_featires, 'is-elite' );
-        }
-    
-        update_field( 'dom-type-home', array(
-            "lot-area" => (string) $xml23->{'lot-area'}->value,
-            "lot-value" => (string) $xml23->{'area'}->value,
-            "dom-building-type" => (string) $xml23->{'building-type'},
-            "dom-floors-total" => (string) $xml23->{'floors-total'},
-            "dom-bathroom-unit" => (string) $xml23->{'bathroom-unit'},
-            "lot-more-data" => "Да",
-            "lot-features" => $home_featires,
-    
-        ), $newID );
+    if( (string) $xml23->{'access-control-system'} ){
+        array_push($flat_features, 'access-control-system' );
     }
+    if( (string) $xml23->{'lift'} ){
+        array_push($flat_features, 'lift' );
+    }
+    if( (string) $xml23->{'rubbish-chute'} ){
+        array_push($flat_features, 'rubbish-chute' );
+    }
+    if( (string) $xml23->{'flat-alarm'} ){
+        array_push($flat_features, 'flat-alarm' );
+    }
+    if( (string) $xml23->{'alarm'} ){
+        array_push($flat_features, 'alarm' );
+    }
+    if( (string) $xml23->{'parking'} ){
+        array_push($flat_features, 'parking' );
+    }
+    if( (string) $xml23->{'security'} ){
+        array_push($flat_features, 'security' );
+    }
+    if( (string) $xml23->{'is-elite'} ){
+        array_push($flat_features, 'is-elite' );
+    }
+
+    update_field( 'dom-type-flat', array(
+        "dom-rooms" => (string) $xml23->rooms,
+        "dom-area"  => (string) $xml23->area->value,
+        "dom-living-space" => (string) $xml23->{'living-space'}->value,
+        "dom-kitchen-space" => (string) $xml23->{'kitchen-space'}->value,
+        "dom-building-type" => (string) $xml23->{'building-type'},
+        "dom-year" => (string) $xml23->{'built-year'},
+        "dom-floor" => (string) $xml23->floor,
+        "dom-floors-total" => (string) $xml23->{'floors-total'},
+        "dom-tall" => (string) $xml23->{'ceiling-height'},
+        "dom-bathroom-unit" => (string) $xml23->{'bathroom-unit'},
+        "dom-bwindow-view" => (string) $xml23->{'window-view'},
+        "dom-floor-covering" => (string) $xml23->{'floor-covering'},
+        "dom-balcony" => (string) $xml23->{'floor-covering'},
+        "dom-more-data" => "Да",
+        "dom-other" => $flat_features,
+    ), $newID );
+
+
+
+
+    $home_featires = array();
+
+    if( (string) $xml23->{'electricity-supply'} ){
+        array_push($home_featires, 'electricity-supply' );
+    }
+    if( (string) $xml23->{'water-supply'} ){
+        array_push($home_featires, 'water-supply' );
+    }
+    if( (string) $xml23->{'gas-supply'} ){
+        array_push($home_featires, 'gas-supply' );
+    }
+    if( (string) $xml23->{'sewerage-supply'} ){
+        array_push($home_featires, 'sewerage-supply' );
+    }
+    if( (string) $xml23->{'heating-supply'} ){
+        array_push($home_featires, 'heating-supply' );
+    }
+    if( (string) $xml23->{'toilet'} ){
+        array_push($home_featires, 'toilet' );
+    }
+    if( (string) $xml23->{'shower'} ){
+        array_push($home_featires, 'shower' );
+    }
+    if( (string) $xml23->{'pool'} ){
+        array_push($home_featires, 'pool' );
+    }
+    if( (string) $xml23->{'billiard'} ){
+        array_push($home_featires, 'billiard' );
+    }
+    if( (string) $xml23->{'sauna'} ){
+        array_push($home_featires, 'sauna' );
+    }
+    if( (string) $xml23->{'parking'} ){
+        array_push($home_featires, 'parking' );
+    }
+    if( (string) $xml23->{'alarm'} ){
+        array_push($home_featires, 'alarm' );
+    }
+    if( (string) $xml23->{'security'} ){
+        array_push($home_featires, 'security' );
+    }
+    if( (string) $xml23->{'is-elite'} ){
+        array_push($home_featires, 'is-elite' );
+    }
+
+    update_field( 'dom-type-home', array(
+        "lot-area" => (string) $xml23->{'lot-area'}->value,
+        "lot-type" => (string) $xml23->{'lot-type'},
+        "lot-value" => (string) $xml23->{'area'}->value,
+        "dom-building-type" => (string) $xml23->{'building-type'},
+        "dom-floors-total" => (string) $xml23->{'floors-total'},
+        "dom-bathroom-unit" => (string) $xml23->{'bathroom-unit'},
+        "lot-more-data" => "Да",
+        "lot-features" => $home_featires,
+
+    ), $newID );
 
 
 
