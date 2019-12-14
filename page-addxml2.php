@@ -31,9 +31,69 @@ $xml_parts = array_chunk($offers_array, 20);
 
 get_header();
 
+
+//Логика поиска устаревших объявлений
+$published_post = get_posts( [
+    'posts_per_page' => -1,
+    'post_type' => 'any',
+    'meta_query' => [
+        'relation' => 'AND',
+        [
+            'key'   => 'xml-feed',
+            'value' => $xmlFile,
+        ],
+    ],
+] );
+
+
+$publArr = array();
+$xmlArr = array();
+
+
+foreach ($published_post as $key => $value) {
+    array_push($publArr, get_field('xml-offer-id', $published_post[$key]->ID));
+}
+foreach ($offers_array as $key => $value) {
+    array_push($xmlArr, (string)$offers_array[$key]['internal-id'] );
+}
+
+sort($publArr, SORT_STRING);
+sort($xmlArr, SORT_STRING);
+
+//массив устаревших offer-id
+$old_object = array_diff($publArr, $xmlArr);
+
+if(count($old_object) > 0){
+
+    $need_to_delete = get_posts( [
+        'posts_per_page' => -1,
+        'post_type' => 'any',
+        'meta_query' => [
+            'relation' => 'AND',
+            [
+                'key' => 'xml-offer-id',
+                'value' => $old_object,
+            ]
+        ],
+    ]);
+    
+    //массив id устаревших постов
+    $delete_ids = array();
+    
+    foreach ($need_to_delete as $key => $value) {
+        array_push($delete_ids, $need_to_delete[$key]->ID);
+    }
+    
+    $delete_json = json_encode($delete_ids);
+
+} else {
+
+    $delete_ids = array();
+    $delete_json = "[]";
+
+}
+
 ?>
-
-
 
 
 <?php foreach ($xml_parts as $key => $value) : ?>
@@ -92,12 +152,14 @@ get_header();
 
         function goDeleteAll(){
         
-            $.get({
+            $.post({
                     url: '/del/',
                     data: {
                         'terminate': '<?php echo $xmlFile; ?>',
                         'ajax': 1,
+                        'ids': '<?php echo $delete_json; ?>',
                     },
+                    datatype: 'json',
                     beforeSend: function() {
                         $('.deletestep').removeClass('d-none');
                         console.log('выполняется удаление всего фида...');

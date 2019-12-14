@@ -1,41 +1,14 @@
 <?php
 
-if( isset($_GET['terminate'])){
+//функция удаляет все переданные посты в JSON "ids"
+if( isset($_POST['ids'])){
 
-    $feed_url = urldecode($_GET['terminate']);
-
-
-    $filter_array = array(
-        array(
-            'key'   => 'xml-feed',
-            'value' => $feed_url,
-        )
-    );
-
-    $target = array(
-        'posts_per_page' => -1,
-        'post_type' => 'any',
-        'meta_query' => [
-            'relation' => 'AND',
-            $filter_array,
-        ],
-    );
-
-
-    $enemy = get_posts( $target );
-
-
-    foreach ($enemy as $key=>$post) {
-        wp_delete_post( $post->ID, true );
+    $delete_ids = json_decode($_POST['ids']);
+    foreach ($delete_ids as $key=>$post) {
+        wp_delete_post( (int)$delete_ids[$key], true );
     }
 
-    echo "Удалено " . count($enemy) . " старых объявлений<br>";
-
-
-} else {
-
-    echo "Ошибка. Не передан фид";
-
+    echo 'Удалено устаревших постов: ' . count($delete_ids) . 'шт<br>';
 }
 
 ?>
