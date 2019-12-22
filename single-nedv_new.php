@@ -32,7 +32,7 @@ get_header();
         <div class="col-12 col-md-6 mb-5">
             <?php
                 if( get_field('dom-gallery-type') == "url" ){
-                    echo '<img src="' . get_field('dom-gallery-url') . '" alt="Изображение" class="img-fluid">';
+                    echo '<img src="' . get_field('kvinjk-url') . '" alt="Изображение квартиры" class="img-fluid">';
                 } else {
                     $main_img = get_field('kvinjk-img');
                     echo wp_get_attachment_image($main_img, 'catalog-thumbs', false, array('class' => 'img-fluid'));

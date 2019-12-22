@@ -1,20 +1,71 @@
 <div class="row filter-result-item">
     <div class="col-12 col-md-5 item-img-wrap">
-        <a target="_blank" href="<?php echo get_permalink(); ?>">
-            <?php
-            if( get_field('dom-gallery-type') == "url" ){
-                $galleryRepeater = get_field('dom-gallery-url');
-                echo '<img src="' . $galleryRepeater[0]['url']. '" alt="Изображение" class="img-fluid">';
-            } else {
-                $main_img = get_field('dom-gallery')[0];
-                echo wp_get_attachment_image($main_img, 'catalog-thumbs', false, array('class' => 'img-fluid'));
+        
+        <?php if(!function_exists('getObjImgUrl')){
+                function getObjImgUrl($num){
+                    if( get_field('dom-gallery-type') == "url" ){
+                        $galleryRepeater = get_field('dom-gallery-url');
+                        return $galleryRepeater[$num]['url'];
+                    } else {
+                        $galleryRepeater = get_field('dom-gallery');
+                        return wp_get_attachment_image_url( $galleryRepeater[$num], 'catalog-thumbs', false );
+                    }
+                }
+                function getObjImgCount(){
+                    if( get_field('dom-gallery-type') == "url" ){
+                        $galleryRepeater = get_field('dom-gallery-url');
+                        return count($galleryRepeater);
+                    } else {
+                        $galleryRepeater = get_field('dom-gallery');
+                        return count($galleryRepeater);
+                    }
+                }
             }
-            ?>
+        ?>
+
+        <div class="filter-result-swiper swiper-container <?php if( getObjImgCount() < 2){ echo 'filter-simple';} ?>">
+            <div class="swiper-wrapper">
+                <?php for ($i=0; $i < 3 && $i < getObjImgCount(); $i++) : ?>
+                    <div class="swiper-slide">
+                        <a target="_blank" href="<?php echo get_permalink(); ?>">
+                            <img 
+                                src="<?php echo getObjImgUrl($i); ?>"
+                                alt="<?php the_field('dom-title'); ?>"
+                                class="img-fluid">
+                        </a>
+                    </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+
+        <div class="filter-result-thumbs swiper-container <?php if( getObjImgCount() < 2){ echo 'filter-simple';} ?>">
+            <div class="swiper-wrapper">
+                <?php for ($i=0; $i < 3 && $i < getObjImgCount(); $i++) : ?>
+                    <div class="swiper-slide">
+                        <img 
+                            src="<?php echo getObjImgUrl($i); ?>"
+                            alt="<?php the_field('dom-title'); ?>"
+                            class="img-fluid">
+                    </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+        
+        <?php if( getObjImgCount() > 3): ?>
+        <a target="_blank" href="<?php echo get_permalink(); ?>" class="filter-result-morephoto">
+            <span>Ещё <br><?php echo getObjImgCount() - 3; ?> фото</span>
+            <img src="<?php echo getObjImgUrl(0); ?>" alt="">
         </a>
+        <?php endif; ?>
+
         <div class="item-abs-fav">
             <?php echo do_shortcode('[favorite_button]'); ?>
         </div>
     </div> <!-- //.col -->
+
+
+
+
     <div class="col-12 col-md-7 item-info-wrap">
         <div>
             <!-- <p><?php echo get_the_date() ." " . get_the_time();  ?></p> -->

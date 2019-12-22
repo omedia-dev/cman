@@ -41,7 +41,7 @@
   }
   
 
-
+  //Object Page and JK page Main Slider
   var mainDomSlider = new Swiper('#mainDomSlider', {
     navigation: {
       nextEl: '.main-slider__next',
@@ -53,19 +53,56 @@
   });
 
 
-  // GLightbox - для увеличения фото
-if (typeof GLightbox !== "undefined") {
-  var lightboxDocuments = GLightbox({
-      selector: 'glightboxLink',
-      moreText: false,
+
+  //Object slider in Catalog
+  let catalogSlider = [];
+  let catalogThumb = [];
+  $('.filter-result-item').each(function( resindex ) {
+
+    catalogThumb[resindex] = new Swiper( $(this).find('.filter-result-thumbs'), {
+      direction:'horizontal',
+      spaceBetween: 5,
+      slidesPerView: 3,
+      shortSwipes: false,
+      // simulateTouch: false,
+      longSwipes: false,
+      followFinger: false,
+      allowTouchMove: false,
+      watchSlidesVisibility: true,
+      watchSlidesProgress: true,
+        breakpoints:{
+          769:{
+            direction:'vertical',
+            spaceBetween: 2,
+          }
+        }
+    });
+
+    catalogSlider[resindex] = new Swiper( $(this).find('.filter-result-swiper'), {
+      spaceBetween: 10,
+      thumbs: {
+        swiper: catalogThumb[resindex],
+      }
+    });
+
+
   });
-}
+  
 
 
-// Modals
-var xMod = new HystModal.modal({
-    linkAttributeName: 'data-hystmodal',
-});
+  // GLightbox - для увеличения фото
+  if (typeof GLightbox !== "undefined") {
+    var lightboxDocuments = GLightbox({
+        selector: 'glightboxLink',
+        moreText: false,
+    });
+  }
+
+
+  // Modals
+  var xMod = new HystModal.modal({
+      linkAttributeName: 'data-hystmodal',
+  });
 
 
 

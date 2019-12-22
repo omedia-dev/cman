@@ -1,16 +1,66 @@
 <div class="row filter-result-item">
-    <div class="col-12 col-md-5 item-img-wrap" style="background:#fafafa;">
-        <a target="_blank" href="<?php echo get_permalink(); ?>">
-        <?php
-            if( get_field('gk_img_main') ){
-                $main_img = get_field('gk_img_main');
-                echo wp_get_attachment_image($main_img, 'catalog-thumbs', false, array('class' => 'img-fluid'));
+    <div class="col-12 col-md-5 item-img-wrap">
+
+        <?php if(!function_exists('getJkImgUrl')){
+                function getJkImgUrl($num){
+                    if( get_field('gk-photogallery') ){
+                        $JkPhotoRepeater = get_field('gk-photogallery');
+                        return wp_get_attachment_image_url( $JkPhotoRepeater[$num], 'catalog-thumbs', false );
+                    } else {
+                        $JkPhotoMain = get_field('gk_img_main');
+                        return wp_get_attachment_image_url( $JkPhotoMain, 'catalog-thumbs', false );
+                    }
+                }
+                function getJkImgCount(){
+                    if( get_field('gk-photogallery')){
+                        $JkPhotoRepeater = get_field('gk-photogallery');
+                        return count($JkPhotoRepeater);
+                    } else {
+                        $JkPhotoMain = get_field('gk_img_main');
+                        return count($JkPhotoMain);
+                    }
+                }
             }
         ?>
+        
+        <div class="filter-result-swiper swiper-container <?php if( getJkImgCount() < 2){ echo 'filter-simple';} ?>">
+            <div class="swiper-wrapper">
+                <?php for ($i=0; $i < 3 && $i < getJkImgCount(); $i++) : ?>
+                    <div class="swiper-slide">
+                        <a target="_blank" href="<?php echo get_permalink(); ?>">
+                            <img 
+                                src="<?php echo getJkImgUrl($i); ?>"
+                                alt="<?php the_title(); ?>"
+                                class="img-fluid">
+                        </a>
+                    </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+
+        
+        <div class="filter-result-thumbs swiper-container <?php if( getJkImgCount() < 2){ echo 'filter-simple';} ?>">
+            <div class="swiper-wrapper">
+                <?php for ($i=0; $i < 3 && $i < getJkImgCount(); $i++) : ?>
+                    <div class="swiper-slide">
+                        <img 
+                            src="<?php echo getJkImgUrl($i); ?>"
+                            alt="<?php the_title(); ?>"
+                            class="img-fluid">
+                    </div>
+                <?php endfor; ?>
+            </div>
+        </div>
+        <?php if( getJkImgCount() > 3): ?>
+        <a target="_blank" href="<?php echo get_permalink(); ?>" class="filter-result-morephoto">
+            <span>Ещё <br><?php echo getJkImgCount() - 3; ?> фото</span>
+            <img src="<?php echo getJkImgUrl(0); ?>" alt="">
         </a>
+        <?php endif; ?>
         <div class="item-abs-fav">
             <?php echo do_shortcode('[favorite_button]'); ?>
         </div>
+
     </div> <!-- //.col -->
     <div class="col-12 col-md-7 item-info-wrap">
         <div>

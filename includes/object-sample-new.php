@@ -1,9 +1,9 @@
 <div class="row filter-result-item">
-    <div class="col-12 col-md-5 item-img-wrap">
-        <a target="_blank" href="<?php echo get_permalink(); ?>">
+    <div class="col-12 col-md-5 item-img-wrap item-img-wrap--new">
+        <a class="item-img-link" target="_blank" href="<?php echo get_permalink(); ?>">
             <?php
             if( get_field('dom-gallery-type') == "url" ){
-                echo '<img src="' . get_field('dom-gallery-url') . '" alt="Изображение" class="img-fluid">';
+                echo '<img src="' . get_field('kvinjk-url') . '" alt="Изображение" class="img-fluid">';
             } else {
                 $main_img = get_field('kvinjk-img');
                 echo wp_get_attachment_image($main_img, 'catalog-thumbs', false, array('class' => 'img-fluid'));

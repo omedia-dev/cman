@@ -490,17 +490,20 @@ function create_new_flat($obj){
     update_field( 'xml-offer-id', (string)$xml23['internal-id'], $newID );
 
     update_field( 'dom-gallery-type', "url", $newID );
+
+
     
     $imgURL = $xml23->image[0];
     
+
     foreach ($xml23->image as $image_url) {
         if( $image_url['tag'] == "plan" ){
             $imgURL = $image_url;
         }
     }
 
-    update_field( 'dom-gallery-url', trim((string) $imgURL), $newID );
-    
+    update_field( 'kvinjk-url', trim((string)$imgURL), $newID );
+
     update_field( 'dom-rooms', (string) $xml23->rooms, $newID );
     
     update_field( 'dom-area', (string) $xml23->area->value, $newID );
@@ -518,9 +521,10 @@ function create_new_flat($obj){
     update_field( 'dom-tall', (string) $xml23->{'ceiling-height'}, $newID );
     
     update_field( 'building-section', (string)$xml23->{'building-section'}, $newID );
-    
+
     update_field( 'kvinjk-number', (string)$xml23->location->apartment, $newID );
     
+
     //Эти поля необходимы для фильтрации
     update_field( 'dom-type', 'квартира', $newID );
     update_field( 'dom-new', 'новостройка', $newID );
@@ -539,6 +543,7 @@ function create_new_flat($obj){
 
 
     update_field( 'search-loc', $search_loc, $newID );
+
     
     $jk_name = mb_strtolower(trim((string)$xml23->{'building-name'}));
     $jk_exist = get_posts( array(
@@ -566,6 +571,7 @@ function create_new_flat($obj){
     update_field( 'kvinjk-pricem', round(((int)$xml23->price->value) / ((float)$xml23->area->value)), $newID );
     
     update_field( 'mortgage', (string)$xml23->mortgage, $newID );
+
     
     //Вывод сообщения о результате
     if( !$result ){

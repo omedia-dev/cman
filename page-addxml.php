@@ -18,7 +18,7 @@ get_template_part('includes/xml-importers-v2');
 
 
 
-
+$full = false;
 
 if( isset($_POST['full']) && isset($_POST['fullxml'])){
 
@@ -55,11 +55,9 @@ if ($xml23){
         foreach($repeater as $object){
 
             if ($object->{'new-flat'} && $object->{'building-name'}) {
-                
                 create_new_flat($object);
 
             } else {
-
                 impfunc($object);
 
             }
@@ -68,11 +66,9 @@ if ($xml23){
     } else {
 
         if ($xml23->{'new-flat'} && $xml23->{'building-name'}) {
-
             create_new_flat($xml23);
-
+            
         } else {
-
             impfunc($xml23);
 
         }
