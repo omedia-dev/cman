@@ -130,7 +130,20 @@ function impfunc($obj){
 
 
     //поле для фильтра в каталоге
-    $postSetting['filter-rooms'] = (string) $xml23->rooms;
+    $metaSuperArray['filter-rooms'] = (string) $xml23->rooms;
+
+
+    //поле для поиска в каталоге
+    $metaSuperArray['search-loc'] = 
+    (string)$xml23->location->{'country'} . " " .
+    (string)$xml23->location->{'region'} . " " .
+    (string)$xml23->location->{'district'} . " " .
+    (string)$xml23->location->{'locality-name'} . " " .
+    (string)$xml23->location->{'sub-locality-name'} . " " .
+    (string)$xml23->location->{'address'} . " " .
+    (string)$xml23->location->metro->{'name'} . " " .
+    (string)$xml23->location->{'railway-station'};
+
 
     
     $metaSuperArray['dom-gallery-url'] = count($xml23->image);
