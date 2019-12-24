@@ -154,6 +154,19 @@
       </div> <!-- //.gk-info -->
 
 
+      <?php 
+      $location = get_field('gk_maps');
+      if( $location ): ?>
+        <div class="container pb-5">
+          <h2 class="page-title">Местоположение</h2>
+          <div class="acf-map mb-5" data-zoom="15">
+              <div class="marker" data-lat="<?php echo esc_attr($location['lat']); ?>" data-lng="<?php echo esc_attr($location['lng']); ?>"></div>
+          </div>
+        </div>
+      <?php endif; ?>
+
+
+
       <?php
       $imagesDom = get_field('gk-photogallery');
       $sizeDom = 'large'; // (thumbnail, medium, large, full or custom size)

@@ -78,7 +78,7 @@
                 <?php
                 if (strtolower(trim(get_field('dom-type'))) == "квартира") {
                     $info = get_field('dom-type-flat');
-                    $line1Text = $info['dom-rooms'] . ", " .
+                    $line1Text = $info['dom-rooms'] . "-комн. квартира, " .
                         $info['dom-area'] . "м<sup>2</sup>, " .
                         $info['dom-floor'] . '/' . $info['dom-floors-total'] . " этаж";
                     echo $line1Text;

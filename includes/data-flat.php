@@ -35,6 +35,15 @@
 </div> <!-- //.object-description -->
 
 
+<?php 
+    $location = get_field('dom-markers');
+    if( $location ): ?>
+        <h3 class="section-title mt-3 pt-5">Местоположение</h3>
+        <div class="acf-map mb-5" data-zoom="12">
+            <div class="marker" data-lat="<?php echo esc_attr($location['lat']); ?>" data-lng="<?php echo esc_attr($location['lng']); ?>"></div>
+        </div>
+<?php endif; ?>
+
 
 <div class="section-object-info">
     <h3 class="section-title">Информация</h3>
@@ -124,11 +133,6 @@
                             <?php if (get_field('deal-status')) : ?>
                                 <p><strong>Тип сделки: </strong><span> <?php the_field('deal-status') ?></span></p>
                             <?php endif ?>
-                        <?php endif ?>
-
-
-                        <?php if (get_field('not-for-agents')) : ?>
-                            <p><strong>Просьба агентам не звонить</strong><span> </span></p>
                         <?php endif ?>
                         
                         <?php if (get_field('sales-agent-haggle')) : ?>

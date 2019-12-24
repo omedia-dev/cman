@@ -119,7 +119,8 @@
 
 
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpXFjCvah4hnFrwrzU2DCihwMBbiNCKFc"></script>
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpXFjCvah4hnFrwrzU2DCihwMBbiNCKFc"></script> -->
+<script src="https://api-maps.yandex.ru/2.1/?apikey=9124453f-cb99-4cc7-9a10-df5a193086f1&amp;lang=ru_RU"></script>
 <?php wp_footer(); ?>
 
 </body>

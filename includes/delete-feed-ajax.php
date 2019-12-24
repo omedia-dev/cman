@@ -1,5 +1,9 @@
 <?php
 
+if( !function_exists('is_super_admin') || !is_super_admin() ){
+    exit('error');
+}
+
 //функция удаляет все переданные посты в JSON "ids"
 if( isset($_POST['ids'])){
 

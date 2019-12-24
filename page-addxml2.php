@@ -3,9 +3,8 @@
  * Template Name: Страница импорта из XML2
  *
  */
-if( !is_super_admin() ){
-    echo "error";
-    exit();
+if( !function_exists('is_super_admin') || !is_super_admin() ){
+    exit('error. У вас нет прав');
 }
 
 

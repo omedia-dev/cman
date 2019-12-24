@@ -153,7 +153,8 @@
   width: 12px;
   height: 11px;
 }
-.navbar-nav .nav-link {
+.navbar-nav .nav-link,
+.navbar-nav .menu-item a{
   color: #353844;
   font-size: 18px;
   display: block;
@@ -163,10 +164,12 @@
   padding: 1.344rem 0!important;
   position: relative;
 }
-.navbar-nav .nav-link .lnr {
+.navbar-nav .nav-link .lnr,
+.navbar-nav .menu-item a .lnr{
   color: #e3352e;
 }
-.navbar-nav .nav-link:after {
+.navbar-nav .nav-link:after,
+.navbar-nav .menu-item a:after{
   content: "";
   display: block;
   width: 100%;
@@ -181,38 +184,45 @@
   -moz-transform: translateX(-50%);
   transform: translateX(-50%);
 }
-.navbar-nav .nav-item {
+.navbar-nav .nav-item,
+.navbar-nav .menu-item {
   display: inherit;
   flex-grow: 1;
   position: relative;
 }
-.navbar-nav .nav-item:before {
+.navbar-nav .nav-item:before,
+.navbar-nav .menu-item:before {
   content: "";
   display: inline-block;
   width: 1px;
   height: 100%;
   background-color: #eeeef0;
 }
-.navbar-nav .nav-item:last-child:after {
+.navbar-nav .nav-item:last-child:after,
+.navbar-nav .menu-item:last-child:after{
   content: "";
   display: inline-block;
   width: 1px;
   height: 100%;
   background-color: #eeeef0;
 }
-.navbar-nav .nav-item:last-child a:after {
+.navbar-nav .nav-item:last-child a:after,
+.navbar-nav .menu-item:last-child a:after{
   display: none;
 }
-.navbar-nav .nav-item:hover {
+.navbar-nav .nav-item:hover,
+.navbar-nav .menu-item:hover,
+.navbar-nav .current-menu-item{
   background-color: #fafafa;
 }
-.navbar-nav .nav-item:hover a:after {
+.navbar-nav .nav-item:hover a:after,
+.navbar-nav .menu-item:hover a:after,
+.navbar-nav .current-menu-item a:after{
   width: 100%;
 }
-.navbar-nav .nav-item ul{
+.navbar-nav .nav-item ul,
+.navbar-nav .menu-item ul{
   display: none;
-}
-.navbar-nav .nav-item ul{
   position: absolute;
   top:100%;
   left: 0;
@@ -225,20 +235,24 @@
   border:1px solid #eeeef0;
   border-top: none;
 }
-.navbar-nav .nav-item:hover ul{
+.navbar-nav .nav-item:hover ul,
+.navbar-nav .menu-item:hover ul{
   display: block;
 }
-.navbar-nav .nav-item li{
+.navbar-nav .nav-item li,
+.navbar-nav .menu-item li{
   list-style: none;
 }
-.navbar-nav .nav-item li a{
+.navbar-nav .nav-item li a,
+.navbar-nav .menu-item li a{
   color: #353844;
   font-size: 16px;
   white-space: nowrap;
   padding: 5px 40px;
   display: block;
 }
-.navbar-nav .nav-item li a:hover{
+.navbar-nav .nav-item li a:hover,
+.navbar-nav .menu-item li a:hover{
   background-color: #fafafa;
 }
 .section-filters {
@@ -295,6 +309,7 @@
   height: 55px;
   border-radius: 0;
   border: none;
+  font-size: 0.9rem;
   border-left: 1px solid #eeeef0;
   border-top: 1px solid #eeeef0;
   border-bottom: 1px solid #eeeef0;
@@ -349,7 +364,7 @@
 }
 .custom-select {
   cursor: pointer;
-  background: url('../img/icon_select.png') no-repeat right 0.75rem center;
+  background: url('../img/icon_select.png') no-repeat right 8px center;
   background-color: white;
 }
 .custom-checkbox {
@@ -1891,6 +1906,7 @@ a.filter-result-morephoto{
 }
 .flat-info dl > * {
   display: inline-block;
+  vertical-align: top;
 }
 .flat-info dl dt {
   font-size: 24px;
@@ -1989,9 +2005,10 @@ a.filter-result-morephoto{
     margin-left: 0 !important;
     margin-top: 15px;
   }
-  .navbar-nav .nav-link {
-    /* text-align: center;
-    padding: 1rem 0!important; */
+  .navbar-nav .nav-link,
+  .navbar-nav .menu-item a{
+    /* text-align: center; */
+    padding: 0.6rem 0!important;
   }
   .section-filters .filters-wrapper h1 {
     font-size: 200%;
@@ -2162,7 +2179,8 @@ a.filter-result-morephoto{
   }
 }
 @media (min-width: 768px) and (max-width: 992px) {
-  .navbar-nav .nav-link {
+  .navbar-nav .nav-link,
+  .navbar-nav .menu-item a{
     font-size: 16px;
   }
   .container {
@@ -2240,4 +2258,24 @@ a.filter-result-morephoto{
     height: calc(20% - 9px);
     font-size: 13px;
   }
+  .flat-info dl{
+    white-space: normal;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+  }
+  .flat-info dl dt{
+    width: 50%;
+    flex-shrink: 0;
+    font-size: 14px;
+    padding-right: 10px; 
+  }
+  .flat-info dl dd{
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+  
 }

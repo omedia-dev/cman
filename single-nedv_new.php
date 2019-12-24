@@ -23,8 +23,6 @@ get_header();
         </h1>
         <div class="col-md-5 align-self-center">
             <?php echo do_shortcode('[favorite_button]'); ?>
-            <!-- <a href="#" class="link-underline add-heart"><span>Добавить в избранное</span></a> -->
-            <!-- <a href="#" class="link-underline add-heart active"><span>Добавить в избранное</span></a> -->
         </div> <!-- //.col-md-5 -->
     </div> <!-- //.row -->
 
@@ -53,6 +51,9 @@ get_header();
                         <a class="link-default" href="<?php echo get_permalink( (int)get_field('building-id') ); ?>">
                             <?php echo get_the_title( (int)get_field('building-id') ); ?>
                         </a>
+                        <?php if(get_field('kvinjk-addres')): ?>
+                            <p class="h5">Адрес: <?php the_field('kvinjk-addres'); ?></p>
+                        <?php endif; ?>
                     </dd>
                 </dl>
             <?php if(get_field('building-section')): ?>
@@ -122,9 +123,19 @@ get_header();
                 <?php endif; ?>
             </dl>
             <a href="#" class="btn btn-default mb-3 mt-3" data-hystmodal="#jsForm2Modal">Оставить заявку</a>
-            <!-- <a href="#" class="btn link-underline btn-outline"><img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/icon_pdf.png" alt=""><span>Скачать PDF</span></a> -->
+            <a href="#" class="btn link-underline btn-outline"><img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/icon_pdf.png" alt=""><span>Скачать PDF</span></a>
         </div> <!-- //.col-md-5 -->
     </div> <!-- //.row -->
+
+
+    <?php 
+    $location = get_field('kvinjk-map');
+    if( $location ): ?>
+        <h3 class="section-title mt-3 pt-5 mb-3">Местоположение</h3>
+        <div class="acf-map mb-5" data-zoom="12">
+            <div class="marker" data-lat="<?php echo esc_attr($location['lat']); ?>" data-lng="<?php echo esc_attr($location['lng']); ?>"></div>
+        </div>
+    <?php endif; ?>
 
 </div> <!-- //.container -->
 

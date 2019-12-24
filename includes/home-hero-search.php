@@ -40,6 +40,9 @@
 		<div class="filter-col filter-col--small">
 			<input type="number" min="0" name="max" value="" class="form-control" placeholder="(₽) До:">
 		</div>
+		<div class="filter-col filter-col--small">
+			<input type="number" min="0" name="max" value="" class="form-control" placeholder="(₽) До:">
+		</div> <!-- //.col -->
 		<div class="filter-col">
 			<button type="submit" class="btn btn-default">Подобрать</button>
 		</div> <!-- //.col -->

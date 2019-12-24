@@ -6,6 +6,12 @@
  * @package WP Pro Real Estate 7
  * @subpackage Template
  */
+
+if( !function_exists('is_user_logged_in') || !is_user_logged_in() ){
+    wp_redirect("/lk/");
+    exit();
+}
+
 $current_user = wp_get_current_user();
 acf_form_head();
 get_header();
@@ -35,7 +41,7 @@ if( isset($_GET['edit']) && strip_tags ($_GET['edit']) != "" ){
         </ol>
     </nav>
     
-    <?php if($current_user->roles[0] == "administrator" || $current_user->roles[0] == "saler"): ?>
+    <?php if( is_super_admin() || $current_user->roles[0] == "saler"): ?>
 
     <h1 class="page-title"><?php echo $my_title; ?></h1>
 

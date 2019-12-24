@@ -182,8 +182,9 @@ get_header();
             ?>
             </span>
         </p>
-        <a href="#map_modal" class="link-grey" data-toggle="modal">Посмотреть на карте</a>
+        <!-- <a href="#map_modal" class="link-grey" data-toggle="modal">Посмотреть на карте</a> -->
     </div> <!-- //.object-location -->
+
 
     <?php 
      

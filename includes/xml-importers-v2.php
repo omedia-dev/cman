@@ -1,4 +1,11 @@
 <?php
+
+
+if( !function_exists('is_super_admin') || !is_super_admin() ){
+    exit('error');
+}
+
+
 /* Version 2 */
 /* Функция обеспечивает добавление/обновление поста вторички и всех полей */
 function impfunc($obj){
@@ -394,6 +401,14 @@ function createJK($xmlObj){
     update_field( 'gk_location', (string)$xmlObj->location->{'locality-name'} . ', ' . (string)$xmlObj->location->{'address'}, $newgkID );
 
 
+    update_field('gk_maps', array(
+        "address" => "",
+        "lat" => (string) $xmlObj->location->latitude,
+        "lng" => (string) $xmlObj->location->longitude,
+        "zoom" => "13", 
+    ), $newgkID);
+
+
     $row1 = array(
         'title'   => 'Тип жилья',
         'content'  => 'Новострой',
@@ -524,6 +539,16 @@ function create_new_flat($obj){
 
     update_field( 'kvinjk-number', (string)$xml23->location->apartment, $newID );
     
+    update_field('kvinjk-map', array(
+        "address" => "",
+        "lat" => (string) $xml23->location->latitude,
+        "lng" => (string) $xml23->location->longitude,
+        "zoom" => "13", 
+    ), $newID);
+
+    update_field( 'kvinjk-addres', (string)$xml23->location->{'locality-name'} . ', ' . (string)$xml23->location->{'address'} , $newID );
+
+
 
     //Эти поля необходимы для фильтрации
     update_field( 'dom-type', 'квартира', $newID );

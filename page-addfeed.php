@@ -4,6 +4,9 @@
  * Template Name: Импорт Фида
  *
  */
+if( !function_exists('is_super_admin')){
+    exit('error');
+}
 if (!is_super_admin()) {
     wp_redirect("/lk/");
     exit();

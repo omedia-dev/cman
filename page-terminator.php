@@ -3,9 +3,8 @@
  * Template Name: Страница терминатор
  *
  */
-if( !is_super_admin() ){
-    echo "error. Access denied";
-    exit();
+if( !function_exists('is_super_admin') || !is_super_admin() ){
+    exit('error. У вас нет прав');
 }
 
 if( isset($_POST['ajax'])){

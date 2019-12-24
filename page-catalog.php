@@ -5,33 +5,50 @@
  *
  */
 
-$filter_array = array('relation' => 'AND');
+$filter_array = array();
 $post_types = array('nedv_sale', 'nedv_arenda', 'nedv_new');
-$filter_type = "";
-$filter_new = "";
-$filter_flat = "";
-$filter_posts = "";
+$filter_posts = 0;
+$filter_type = 0;
+$filter_new = 0;
+$filter_flat = 0;
+
+$price_min = "";
 $price_max = "";
+$price_min_max = array("", "");
 $loc = "";
 
+$sortType = "";
+$sort_label = "По умолчанию";
+$order_by = 'modified';
+$order = "ACS";
+$order_meta_key = "dom-price";
 
 
+// Продажа или аренда
+if( isset($_GET["posts"]) ){
 
-if (isset($_GET["posts"]) && strip_tags($_GET["posts"]) == "1") {
-    $filter_posts = "1";
-    $post_types = array('nedv_sale', 'nedv_new');
+    switch( (int)strip_tags($_GET["posts"]) ) {
+        case 1:
+            $filter_posts = 1;
+            $post_types = array('nedv_sale', 'nedv_new');
+            break;
+        case 2:
+            $filter_posts = "2";
+            $post_types = 'nedv_arenda';
+            break;
+    }
+    
 }
-if (isset($_GET["posts"]) && strip_tags($_GET["posts"]) == "2") {
-    $filter_posts = "2";
-    $post_types = 'nedv_arenda';
-}
 
 
 
-if (isset($_GET["type"]) && strip_tags($_GET["type"]) != "" && strip_tags($_GET["type"]) != "0") {
 
-    $filter_type = (int) strip_tags($_GET["type"]);
-    switch ($filter_type) {
+//Тип недвижимости
+if ( isset($_GET["type"]) ) {
+
+    $filter_type = (int)strip_tags($_GET["type"]);
+
+    switch ( $filter_type ) {
         case 1:
             $filter_type_label = 'квартира';
             break;
@@ -48,62 +65,89 @@ if (isset($_GET["type"]) && strip_tags($_GET["type"]) != "" && strip_tags($_GET[
             $filter_type_label = 'коммерческая';
             break;
         default:
-            $filter_type_label = 'квартира';
+            $filter_type_label = 'all';
     }
 
-    array_push($filter_array, array(
-        'key'   => 'dom-type',
-        'value' => $filter_type_label,
-    ));
-}
-
-
-
-
-if (isset($_GET["new"]) && strip_tags($_GET["new"]) != "") {
-
-    $filter_new = (int) strip_tags($_GET["new"]);
-
-    if ($filter_new == 1) {
+    if( $filter_type_label != 'all' ){
         array_push($filter_array, array(
-            'key'   => 'dom-new',
-            'value' => 'новостройка',
-        ));
-    } elseif ($filter_new == 2) {
-        array_push($filter_array, array(
-            //Только во вторичке есть поле dom-title
-            'key'   => 'dom-title',
+            'key'   => 'dom-type',
+            'value' => $filter_type_label,
         ));
     }
 }
 
 
 
-if ($filter_type == 1 && isset($_GET["rooms"]) && strip_tags($_GET["rooms"]) != "") {
+
+
+// Новостройка или вторичка
+if( isset($_GET["new"]) ){
+
+    $filter_new = (int)strip_tags($_GET["new"]);
+    switch( (int)strip_tags($_GET["new"]) ) {
+        case 1:
+            array_push($filter_array, array(
+                'key'   => 'dom-new',
+                'value' => 'новостройка',
+            ));
+            break;
+        case 2:
+            array_push($filter_array, array(
+                //Только во вторичке есть поле dom-title
+                'key'   => 'dom-title',
+            ));
+            break;
+    }
+    
+}
+
+
+
+if ($filter_type == 1 && isset($_GET["rooms"])) {
+
     $filter_flat = (int) strip_tags($_GET["rooms"]);
 
-    array_push($filter_array,   array(
-        'key'     => 'filter-rooms',
-        'value'   => $filter_flat,
+    if($filter_flat && $filter_flat < 5){
+        array_push($filter_array,   array(
+            'key'     => 'filter-rooms',
+            'value'   => $filter_flat,
+        ));
+    }
+
+    if($filter_flat == 5){
+        array_push($filter_array,   array(
+            'key'     => 'filter-rooms',
+            'compare' => '>',
+            'type' => 'NUMERIC',
+            'value'   => 4,
+        ));
+    }
+}
+
+
+
+
+if ( isset($_GET["max"]) && (int)strip_tags($_GET["max"]) != 0 ) {
+    $price_max = (int) strip_tags($_GET["max"]);
+
+    array_push($filter_array, array(
+        'key'     => 'dom-price',
+        'compare' => '<=',
+        'type' => 'NUMERIC',
+        'value'   => $price_max,
     ));
 }
 
+if( isset($_GET["min"]) && (int)strip_tags($_GET["min"]) != 0){
+    $price_min = (int) strip_tags($_GET["min"]);
 
-
-
-if (isset($_GET["max"]) && strip_tags($_GET["max"]) != "") {
-    $price_max = (int) strip_tags($_GET["max"]);
-
-    array_push($filter_array,   array(
+    array_push($filter_array, array(
         'key'     => 'dom-price',
-        'compare' => 'BETWEEN',
-        'type'    => 'numeric',
-        'value'   => array( 0, $price_max),
-      ));
+        'compare' => '>=',
+        'type' => 'NUMERIC',
+        'value'   => $price_min,
+    ));
 }
-
-
-
 
 
 if (isset($_GET["loc"]) && strip_tags($_GET["loc"]) != "") {
@@ -122,14 +166,55 @@ if (isset($_GET["loc"]) && strip_tags($_GET["loc"]) != "") {
 
 
 
+// Новостройка или вторичка
+if( isset($_GET["sort"]) ){
+
+    $sortType = htmlspecialchars($_GET["sort"], ENT_QUOTES, 'UTF-8');
+
+    switch( $sortType ) {
+        case 'priceup':
+            $order_by = 'meta_value_num';
+            $order = "ASC";
+            $sort_label = "По цене (сначала дешевле)";
+            break;
+        case 'pricedown':
+            $order_by = 'meta_value_num';
+            $order = "DESC";
+            $sort_label = "По цене (сначала дороже)";
+            break;
+        case 'dateup':
+            $order = "DESC";
+            $sort_label = "По дате (сначала новые)";
+            break;
+        case 'datedown':
+            $order = "ASC";
+            $sort_label = "По дате (сначала старые)";
+            break;
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
 
 $searchargs = array(
     'posts_per_page' => 10,
-    'order' => "DESC",
-    'orderby' => 'modified',
     'post_type' => $post_types,
     'paged' => $paged,
+    'meta_key' => $order_meta_key,
+    'orderby' => $order_by,
+    'order' => $order,
     'meta_query' => [
         'relation' => 'AND',
         $filter_array,
@@ -147,8 +232,6 @@ $objects = new WP_Query( $searchargs );
 get_header();
 
 ?>
-
-
     <div class="container inner-page">
 
         <nav aria-label="breadcrumb">
@@ -160,7 +243,9 @@ get_header();
 
         <h1 class="page-title">Каталог недвижимости</h1>
 
-        <?php get_template_part('/includes/banners'); ?>
+
+
+        <?php //get_template_part('/includes/banners'); ?>
 
         <!-- <div class="section-tabs red">
     <nav>
@@ -224,15 +309,15 @@ get_header();
                         <input type="text" name="loc" value="<?php echo $loc; ?>" class="form-control" placeholder="Город, адрес, метро, район">
                     </div> <!-- //.col -->
                     <div class="filter-col filter-col--small">
+                        <input type="number" min="0" name="min" value="<?php echo $price_min; ?>" class="form-control" placeholder="(₽) От:">
+                    </div> <!-- //.col -->
+                    <div class="filter-col filter-col--small">
                         <input type="number" min="0" name="max" value="<?php echo $price_max; ?>" class="form-control" placeholder="(₽) До:">
                     </div> <!-- //.col -->
-                    <!-- <div class="col-md-2">
-          <select class="custom-select">
-            <option value="0">В районе:</option>
-            <option value="1">Большие Выселки</option>
-          </select>
-        </div> -->
+
+
                     <div class="filter-col">
+                        <input type="hidden" name="sort" value="<?php echo $sortType; ?>">
                         <button type="submit" class="btn btn-default">Подобрать</button>
                     </div> <!-- //.col -->
                 </div> <!-- //.form-row -->
@@ -244,16 +329,23 @@ get_header();
                             По Вашему запросу найдено: <?php echo $objects->found_posts; ?> объекта
                         </div> <!-- //.find -->
                     </div> <!-- //.col -->
-                    <div class="col-12 col-md-3">
-                        <div class="">
-                            <!-- Сортировка: <a href="#" class="link-default">по умолчанию</a> -->
+                    <div class="col-12 col-md-5">
+                        <div class="sorts dropdown-inside">
+                            Сортировка: <span class="link-default dropdown-redlink"><?php echo $sort_label; ?></span>
+                            <div class="jsOpenBlock dropdown--sort">
+                                <a href="<?php echo add_query_arg('sort', 'none'); ?>">По умолчанию</a>
+                                <a href="<?php echo add_query_arg('sort', 'priceup'); ?>">По цене (сначала дешевле)</a>
+                                <a href="<?php echo add_query_arg('sort', 'pricedown'); ?>">По цене (сначала дороже)</a>
+                                <a href="<?php echo add_query_arg('sort', 'dateup'); ?>">По дате (сначала новые)</a>
+                                <a href="<?php echo add_query_arg('sort', 'datedown'); ?>">По дате (сначала старые)</a>
+                            </div>
                         </div> <!-- //. -->
                     </div> <!-- //.col -->
-                    <div class="col-12 col-md-2">
+                    <!-- <div class="col-12 col-md-1">
                         <div class="">
-                            <!-- Выводить по: <a href="#" class="link-default">10</a> -->
-                        </div> <!-- //. -->
-                    </div> <!-- //.col -->
+                            Выводить по: <a href="#" class="link-default">10</a>
+                        </div>
+                    </div> -->
                     <div class="col-12 col-md-2">
                         <a href="<?php echo get_permalink(); ?>" class="link-grey">Сбросить фильтр</a>
                     </div> <!-- //.col -->

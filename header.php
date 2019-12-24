@@ -36,21 +36,34 @@ $current_user = wp_get_current_user();
           <div class="container">
             <!-- Collapsible content -->
             <div class="collapse navbar-collapse" id="mainMenu">
+              
               <!-- навигация -->
+              <?php
+                wp_nav_menu([
+                  'menu'            => 'HeaderMenu',
+                  'container'       => false,
+                  'container_class' => '',
+                  'container_id'    => '',
+                  'menu_class'      => '',
+                  'menu_id'         => '',
+                  'echo'            => true,
+                  'items_wrap'      => 
+                    
+                    '<ul class="main-menu navbar-nav justify-content-between w-100">
+                      %3$s
+                      <li class="menu-item">
+                        <a href="#" class="nav-link link-underline" data-hystmodal="#jsForm1Modal">
+                          <span>Бесплатная консультация</span>
+                        </a>
+                      </li>
+                    </ul>',
 
-              <ul class="main-menu navbar-nav justify-content-between w-100">
-                <li class="nav-item active"><a href="/" class="nav-link">Главная</a></li>
-                <li class="nav-item"><a href="/about/" class="nav-link">О нас</a></li>
-                <li class="nav-item"><a href="/catalog/" class="nav-link"><span class="lnr lnr-menu mr-2 align-middle"></span>Каталог недвижимости</a>					
-				<li class="nav-item"><a href="/build-catalog/" class="nav-link"><span class="lnr lnr-menu mr-2 align-middle"></span>Новостройки</a>                  
-                </li>
-				  
-                <li class="nav-item"><a href="/trade-in/" class="nav-link">Trade in</a></li>
-                <li class="nav-item"><a href="/zastrojshhikam/" class="nav-link">Застройщикам</a></li> 
-                <li class="nav-item"><a href="/contacts/" class="nav-link">Контакты</a></li> 
-				  
-                <li class="nav-item"><a href="#" class="nav-link link-underline" data-hystmodal="#jsForm1Modal"><span>Бесплатная консультация</span></a></li>
-              </ul>
+                  'depth'           => 0,
+                  'walker'          => '',
+                ]);
+              ?>
+
+
             </div>
           </div> <!-- //.container -->
         </nav>
