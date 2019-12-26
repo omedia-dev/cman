@@ -1,5 +1,12 @@
 <?php 
 
+
+
+if(isset($_GET['pdfview'])){
+    include(get_template_directory() . '/pdf/aspdf.php');
+    exit();
+}
+
 get_header();
 
 ?>
@@ -123,7 +130,7 @@ get_header();
                 <?php endif; ?>
             </dl>
             <a href="#" class="btn btn-default mb-3 mt-3" data-hystmodal="#jsForm2Modal">Оставить заявку</a>
-            <a href="#" class="btn link-underline btn-outline"><img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/icon_pdf.png" alt=""><span>Скачать PDF</span></a>
+            <a href="<?php echo add_query_arg('pdfview', '1'); ?>" class="btn link-underline btn-outline" target="_blank"><img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/icon_pdf.png" alt=""><span>Скачать PDF</span></a>
         </div> <!-- //.col-md-5 -->
     </div> <!-- //.row -->
 
