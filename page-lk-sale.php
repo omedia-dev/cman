@@ -1,11 +1,18 @@
 <?php
-
 /**
  * Template Name: Личный кабинет (Продажа)
  *
  * @package WP Pro Real Estate 7
  * @subpackage Template
  */
+if( !function_exists('is_super_admin') ){
+  exit('error');
+}
+if( is_super_admin() ){
+  get_template_part('/includes/lk-as-admin');
+  exit();
+}
+
 
 
 $current_user = wp_get_current_user();

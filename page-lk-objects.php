@@ -7,13 +7,19 @@
  * @subpackage Template
  */
 
+if( !function_exists('is_super_admin') ){
+  exit('error');
+}
+if( is_super_admin() ){
+  get_template_part('/includes/lk-as-admin');
+  exit();
+}
+
+
+
 
 $current_user = wp_get_current_user();
 
-if($current_user->ID == 0){
-  echo 'Доступ запрещен';
-  return;
-}
 
 // Вывод активных обявлений
 $publiced_post = get_posts(array(

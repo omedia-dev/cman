@@ -50,7 +50,7 @@ get_header();
                 <li><img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/flat_3.png" alt=""></li>
             </ul> -->
         </div> <!-- //.col-md-7 -->
-        <div class="col-12 col-md-5 offset-lg-1 flat-info">
+        <div class="col-12 col-md-5 flat-info">
         <?php do_action( 'bwsplgns_display_pdf_print_buttons', 'top' ); ?>
                 <dl>
                     <dt>Жилой комплекс:</dt>
