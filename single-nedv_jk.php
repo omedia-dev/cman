@@ -1,3 +1,67 @@
+<?php
+
+
+
+$childs_args = array(
+  'numberposts' => -1, // количество выводимых постов - все
+  'post_type' => 'nedv_new', // тип поста - любой
+  'post_status' => 'publish', // статус поста - любой
+  'orderby' => 'meta_value_num',
+  'meta_key' => 'kvinjk-number',
+  'order' => 'ASC',
+  'meta_query' => [
+    'relation' => 'AND',
+    array(
+      'key'     => 'building-id',
+      'compare' => '=',
+      'value'   => get_the_ID(),
+    ),
+  ],
+);
+$childs = get_posts($childs_args);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <!--[if IE 9 ]><html class="ie ie9" <?php language_attributes(); ?>><![endif]-->
 <!--[if (gte IE 9)|!(IE)]><html <?php language_attributes(); ?>><![endif]-->
@@ -10,7 +74,29 @@
   <?php wp_head(); ?>
 
   <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+  <script src="<?php echo get_template_directory_uri() . '/assets/js/tablesort/tablesort.min.js' ?>"></script>
+  <script src="<?php echo get_template_directory_uri() . '/assets/js/tablesort/sorts/tablesort.number.min.js' ?>"></script>
+  <script>
+  (function ($) {
+    'use strict';
+    $(document).ready(function () {
+      const jsTables = document.querySelectorAll('.jsSorttable');
 
+      for (let i = 0; i < jsTables.length; i++) {
+        new Tablesort(jsTables[i]);
+      }
+
+
+      $('.jsShowAllTable').on('click', function(e){
+        $(this).closest('.result-table').addClass('active');
+        $(this).closest('.showalltable').hide();
+      })
+      
+    });
+  }(jQuery));
+    
+  
+  </script>
 </head>
 
 <body>
@@ -198,24 +284,6 @@
 
       <?php
 
-      $childs_args = array(
-        'numberposts' => -1, // количество выводимых постов - все
-        'post_type' => 'nedv_new', // тип поста - любой
-        'post_status' => 'publish', // статус поста - любой
-        'orderby' => 'meta_value_num',
-        'meta_key' => 'kvinjk-number',
-        'order' => 'ASC',
-        'meta_query' => [
-          'relation' => 'AND',
-          array(
-            'key'     => 'building-id',
-            'compare' => '=',
-            'value'   => get_the_ID(),
-          ),
-        ],
-      );
-      $childs = get_posts($childs_args);
-
       if ($childs) : ?>
 
         <div class="section-for-sale">
@@ -330,17 +398,17 @@
                 <a data-toggle="tab" class="<?php if($key == 0): ?>active<?php endif; ?>" href="#nav-corp<?php echo $key; ?>" role="tab" aria-controls="nav-corp1"><?php echo $corp; ?></a>
               <?php endforeach; ?>
             </div>
-            <!-- <pre><?php print_r($bildingFlats); ?></pre> -->
+            <!-- <pre><?php //print_r($bildingFlats); ?></pre> -->
 
 
             <div class="tab-content" id="nav-tabContent">
               <?php foreach ($bildingCorp as $key=>$corp) : ?>
               <div class="tab-pane <?php if($key == 0): ?>fade show active<?php endif; ?>" id="nav-corp<?php echo $key; ?>" role="tabpanel">
-                  <div class="table-responsive result-table">  
-                    <table class="table table-striped">
+                  <div class="table-responsive result-table <?php if(count($bildingFlats[$key]) > 20){ echo 'result-table-short'; } ?>">
+                    <table class="table table-striped jsSorttable">
                       <thead>
                         <tr>
-                          <th scope="col">№</th>
+                          <th scope="col" data-sort-default>№</th>
                           <th scope="col">Корпус</th>
                           <th scope="col">Этаж</th>
                           <th scope="col">Комнат</th>
@@ -352,22 +420,23 @@
                       <tbody>
                         <?php foreach ($bildingFlats[$key] as $flat) : ?>
 
-                          
-                          <!-- <tr onclick="location.href='<?php echo $flat['url']; ?>'"> -->
                           <tr onclick="window.open('<?php echo $flat['url']; ?>', '_blank');">
                             <td scope="row"><?php echo $flat['number']; ?></td>
                             <td><?php echo $flat['section']; ?></td>
                             <td><?php echo $flat['floor']; ?></td>
                             <td><?php echo $flat['rooms']; ?></td>
                             <td><?php echo $flat['area']; ?> м<sup>2</sup></td>
-                            <td><?php echo $flat['pricem']; ?> руб.</td>
-                            <td><?php echo $flat['price']; ?> руб.</td>
+                            <td data-sort='<?php echo (int)str_replace(" ","", $flat['pricem']); ?>'><?php echo $flat['pricem']; ?> руб.</td>
+                            <td data-sort='<?php echo (int)str_replace(" ","", $flat['price']); ?>'><?php echo $flat['price']; ?> руб.</td>
                           </tr>
 
                         <?php wp_reset_postdata();
                           endforeach; ?>
                       </tbody>
                     </table>
+                    <div class="showalltable">
+                      <button class="btn btn-default jsShowAllTable">Показать все квартиры</button>
+                    </div>
                   </div>
                 </div><!-- //tab-pane -->
               <?php endforeach; ?>

@@ -1866,7 +1866,32 @@ a.filter-result-morephoto{
   height: 70px;
   vertical-align: middle;
   text-align: center;
+  cursor: pointer;
+  position: relative;
 }
+.result-table th:hover,
+.result-table th[aria-sort]{
+  background-color: #e0e0e0;
+}
+.result-table th[aria-sort]:not(.no-sort):after{
+  content:"\f30c";
+  font-family: "Font Awesome 5 Free";
+  display: inline-block;
+  vertical-align: middle;
+  color: #000;
+  font-size: 12px;
+  width: 12px;
+  line-height: 12px;
+  position: relative;
+  margin: -3px -17px 0 5px;
+  z-index: 4;
+}
+.result-table th[aria-sort="descending"]:not(.no-sort):after{
+  content:"\f309";
+}
+
+
+
 .result-table table tbody tr {
   transition: all 0.3s ease-in-out;
   cursor: pointer;
@@ -1889,6 +1914,39 @@ a.filter-result-morephoto{
   background-color: #e3352e;
   color: white;
 }
+
+
+
+.result-table-short{
+  max-height: 1000px;
+  overflow-y: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.result-table.active{
+  max-height: none;
+}
+.showalltable{
+  display: none;
+}
+.result-table-short .showalltable{
+  display: block;
+  background: linear-gradient(0deg, rgba(255,255,255,1) 40%, rgba(255,255,255,0) 100%);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 50px 0 5px;
+  z-index: 14;
+  text-align: center;
+}
+.showalltable button{
+
+}
+
+
+
+
 .flat-info .btn {
   width: 360px;
   max-width: 100%;
