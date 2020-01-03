@@ -11,6 +11,7 @@
 			<select name="type" class="custom-select jsObjects">
 				<option value="0">Любой тип</option>
 				<option value="1">Квартиру</option>
+				<option value="6">Загородная недвижимость</option>
 				<option value="2">Дом / Коттедж</option>
 				<option value="3">Таунхаус</option>
 				<option value="4">Участок</option>

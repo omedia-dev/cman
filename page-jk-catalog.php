@@ -5,111 +5,134 @@
  *
  */
 
-$filter_array = array('relation' => 'AND');
-$post_types = array('nedv_sale', 'nedv_arenda', 'nedv_new');
-$filter_type = "";
-$filter_new = "";
-$filter_flat = "";
-$filter_posts = "";
-$price_max = "";
-$loc = "";
+$filterMetro = array();
+$filterPrice = array();
+$filterDate = array();
 
 
 
+$filter_array = array();
+$queryName = "";
+$queryMetro = "";
+$queryRooms = "";
+$queryYear = "";
+$queryMin = "";
+$queryMax = "";
 
-if (isset($_GET["posts"]) && strip_tags($_GET["posts"]) == "1") {
-    $filter_posts = "1";
-    $post_types = array('nedv_sale', 'nedv_new');
+
+
+//Предварительный запрос всех ЖК для наполнения фильтров
+$simpleArgs = array(
+    'numberposts' => -1, // количество выводимых постов - все
+    'post_type' => 'nedv_jk', // тип поста - любой
+    'post_status' => 'publish', // статус поста - любой
+);
+$allPosts = get_posts($simpleArgs);
+
+foreach ($allPosts as $simpleChild){
+    //Наполняем массивы для фильтра этаж/комнаты
+    if(get_field('sysjk-metro', $simpleChild->ID)){
+        array_push($filterMetro, get_field('sysjk-metro', $simpleChild->ID));
+    }
+
+    array_push($filterPrice, (int)get_field('dom-price', $simpleChild->ID));
+
+    if( get_field('sysjk-date', $simpleChild->ID) ){
+        array_push($filterDate, get_field('sysjk-date', $simpleChild->ID));
+    }
+
 }
-if (isset($_GET["posts"]) && strip_tags($_GET["posts"]) == "2") {
-    $filter_posts = "2";
-    $post_types = 'nedv_arenda';
+
+
+
+
+//Дата сдачи дома
+if( isset($_GET["jkyear"]) ){
+    $queryYear = trim(urldecode(strip_tags($_GET["jkyear"])));
+    if($queryYear){
+        array_push($filter_array, array(
+            'key'     => 'sysjk-date',
+            'value'   => $queryYear,
+        ));
+    }
 }
 
 
 
-if (isset($_GET["type"]) && strip_tags($_GET["type"]) != "" && strip_tags($_GET["type"]) != "0") {
 
-    $filter_type = (int) strip_tags($_GET["type"]);
-    switch ($filter_type) {
+
+
+//Метро
+if( isset($_GET["jkmetro"]) ){
+    $queryMetro = trim(urldecode(strip_tags($_GET["jkmetro"])));
+    if($queryMetro){
+        array_push($filter_array, array(
+            'key'     => 'sysjk-metro',
+            'value'   => $queryMetro,
+        ));
+    }
+}
+
+
+
+
+//Комнатность квартир
+if( isset($_GET["jkrooms"]) ){
+    $queryRooms = (int)trim(urldecode(strip_tags($_GET["jkrooms"])));
+    switch ($queryRooms) {
         case 1:
-            $filter_type_label = 'квартира';
+            array_push($filter_array, array(
+                'key'     => 'sysjk-1',
+                'value'   => "1",
+            ));
             break;
         case 2:
-            $filter_type_label = array('дом', 'коттедж');
+            array_push($filter_array, array(
+                'key'     => 'sysjk-2',
+                'value'   => '1',
+            ));
             break;
         case 3:
-            $filter_type_label = 'таунхаус';
+            array_push($filter_array, array(
+                'key'     => 'sysjk-3',
+                'value'   => '1',
+            ));
             break;
         case 4:
-            $filter_type_label = 'участок';
+            array_push($filter_array, array(
+                'key'     => 'sysjk-4',
+                'value'   => '1',
+            ));
             break;
-        default:
-            $filter_type_label = 'квартира';
     }
+}
+
+
+//Цены
+if ( isset($_GET["max"]) && (int)strip_tags($_GET["max"]) != 0 ) {
+    $queryMax = (int) strip_tags($_GET["max"]);
 
     array_push($filter_array, array(
-        'key'   => 'dom-type',
-        'value' => $filter_type_label,
+        'key'     => 'gk_to',
+        'compare' => '<=',
+        'type' => 'NUMERIC',
+        'value'   => $queryMax,
+    ));
+}
+
+if( isset($_GET["min"]) && (int)strip_tags($_GET["min"]) != 0){
+    $queryMin = (int) strip_tags($_GET["min"]);
+
+    array_push($filter_array, array(
+        'key'     => 'gk_from',
+        'compare' => '>=',
+        'type' => 'NUMERIC',
+        'value'   => $queryMin,
     ));
 }
 
 
 
-
-if (isset($_GET["new"]) && strip_tags($_GET["new"]) != "") {
-
-    $filter_new = (int) strip_tags($_GET["new"]);
-
-    if ($filter_new == 1) {
-        array_push($filter_array, array(
-            'key'   => 'dom-new',
-            'value' => 'новостройка',
-        ));
-    } elseif ($filter_new == 2) {
-        array_push($filter_array, array(
-            'key'   => 'dom-title',
-        ));
-    }
-}
-
-
-
-if ($filter_type == 1 && isset($_GET["rooms"]) && strip_tags($_GET["rooms"]) != "") {
-    $filter_flat = (int) strip_tags($_GET["rooms"]);
-
-    array_push($filter_array,   array(
-        'key'     => 'filter-rooms',
-        'value'   => $filter_flat,
-    ));
-}
-
-
-
-
-if (isset($_GET["max"]) && strip_tags($_GET["max"]) != "") {
-    $price_max = (int) strip_tags($_GET["max"]);
-
-    array_push($filter_array,   array(
-        'key'     => 'dom-price',
-        'compare' => 'BETWEEN',
-        'type'    => 'numeric',
-        'value'   => array( 0, $price_max),
-      ));
-}
-
-
-
-
-
-if (isset($_GET["loc"]) && strip_tags($_GET["loc"]) != "") {
-    $loc = (string) strip_tags($_GET["loc"]);
-	array_push($filter_array,   array(
-    'key'     => array('dom-title', 'dom-address','dom-locality-name', 'dom-metro'),
-    'compare' => 'LIKE',
-    'value'   => $loc,
- ));
-}
 
 
 
@@ -126,7 +149,26 @@ $searchargs = array(
     'orderby' => 'modified',
     'post_type' => 'nedv_jk',
     'paged' => $paged,
+    'meta_query' => [
+        'relation' => 'AND',
+        $filter_array,
+    ],
 );
+
+
+//Продажа или аренда
+if( isset($_GET["jkname"]) ){
+    $queryName = trim(urldecode(strip_tags($_GET["jkname"])));
+    if($queryName){
+        $searchargs['title'] = $queryName;
+    }
+}
+
+
+
+
+
+
 
 $objects = new WP_Query( $searchargs );
 
@@ -156,9 +198,108 @@ get_header();
         <?php get_template_part('/includes/banners'); ?>
 
 
+
+
+
+
+        <section class="section-catalog-filter" id="filterBlock">
+            <form action="/build-catalog/#filterBlock" class="filter-form" method="GET">
+                <div class="filter-row">
+                    <div class="filter-col">
+                        <select name="jkname" class="custom-select">
+                            <option value="0">Выберите Жилой комплекс</option>
+                            <?php 
+                                foreach ($allPosts as $obj) {
+                                    if( $queryName == $obj->post_title){
+                                        $nameActive = "selected";
+                                    } else {
+                                        $nameActive = "";
+                                    }
+                                    echo '<option value="' . urlencode($obj->post_title) . '" ' . $nameActive . '>' . $obj->post_title . '</option>';
+                                }
+                            ?>   
+                        </select>
+                    </div> <!-- //.col -->
+                    <div class="filter-col">
+                        <select name="jkmetro" class="custom-select">
+                            <option value="">Станция метро</option>
+                            <?php 
+                                $metroArray = array_unique($filterMetro);
+                                sort($metroArray);
+                                foreach ($metroArray as $metroObj) {
+                                    if( $metroObj == $queryMetro){
+                                        $metroActive = "selected";
+                                    } else {
+                                        $metroActive = "";
+                                    }
+                                    echo '<option value="' . urlencode($metroObj) . '"' . $metroActive . '>' . $metroObj . '</option>';
+                                }
+                            ?> 
+                        </select>
+                    </div> <!-- //.col -->
+                    <div class="filter-col jsFlatCtrl">
+                        <select name="jkrooms" class="custom-select">
+                            <option value="">Число комнат</option>
+                            <option value="1" <?php if ($queryRooms == 1) echo 'selected'; ?>>1-комн.</option>
+                            <option value="2" <?php if ($queryRooms == 2) echo 'selected'; ?>>2-комн.</option>
+                            <option value="3" <?php if ($queryRooms == 3) echo 'selected'; ?>>3-комн.</option>
+                            <option value="4" <?php if ($queryRooms == 4) echo 'selected'; ?>>4-комн. и более</option>
+                        </select>
+                    </div> <!-- //.col -->
+                    <div class="filter-col">
+                        <select name="jkyear" class="custom-select">
+                            <option value="">Срок сдачи</option>
+                            <?php 
+                                $dateArray = array_unique($filterDate);
+                                sort($dateArray);
+                                foreach ($dateArray as $dateObj) {
+                                    if( $dateObj == $queryYear){
+                                        $yearActive = "selected";
+                                    } else {
+                                        $yearActive = "";
+                                    }
+                                    echo '<option value="' . urlencode($dateObj) . '"' . $yearActive . '>' . $dateObj . '</option>';
+                                }
+                            ?>   
+                        </select>
+                    </div> <!-- //.col -->
+                    <div class="filter-col filter-col--small">
+                        <input type="number" min="0" name="min" value="<?php echo $queryMin; ?>" class="form-control" placeholder="(₽) От:">
+                    </div> <!-- //.col -->
+                    <div class="filter-col filter-col--small">
+                        <input type="number" min="0" name="max" value="<?php echo $queryMax; ?>" class="form-control" placeholder="(₽) До:">
+                    </div> <!-- //.col -->
+
+
+                    <div class="filter-col">
+                        <button type="submit" class="btn btn-default">Подобрать</button>
+                    </div> <!-- //.col -->
+                </div> <!-- //.form-row -->
+            </form> <!-- //.filters-form -->
+
+            <div class="filter-bottom">
+                <div class="row justify-content-between">
+                    <div class="col-12 col-md-5">
+                        <div class="find">
+                            По Вашему запросу найдено: <?php echo $objects->found_posts; ?> объекта
+                        </div> <!-- //.find -->
+                    </div> <!-- //.col -->
+                    <div class="col-12 col-md-2">
+                        <a href="<?php echo get_permalink(); ?>" class="link-grey">Сбросить фильтр</a>
+                    </div> <!-- //.col -->
+                </div> <!-- //.row -->
+            </div> <!-- //.filter-bottom -->
+        </section> <!-- //.section-catalog-filter -->
+
+
+
+
+
+
+
         <div class="filter-result">
 
-            <?php if (1) : ?>
+            <?php if ($objects->posts) : ?>
                 <?php foreach ( $objects->posts as $post ) : setup_postdata( $post ); ?>
 
                     <?php 
@@ -172,7 +313,7 @@ get_header();
                     <div class="emptyblock__img h1"><span class="lnr lnr-apartment"></span></div>
                     <div class="h1">По запросу объектов не найдено</div>
                     <div class="my-5">
-                        <a href="<?php echo get_post_type_archive_link('nedv_arenda'); ?>" class="btn btn-default">Сбросить фильтр</a>
+                        <a href="/build-catalog/" class="btn btn-default">Сбросить фильтр</a>
                     </div>
                 </div>
             <?php endif; ?>
@@ -210,20 +351,9 @@ get_header();
         'use strict';
         $(document).ready(function() {
 
-            $('.jsObjects').on('change', function(e){
-
-                if( parseInt($(this).val())  > 1 ){
-
-                    $('.jsFlatCtrl').hide();
-                    
-                }  else {
-
-                    $('.jsFlatCtrl').show();
-
-                }
-
+            $('#filterBlock select').on('change', function(e){
+                $('#filterBlock select').not(this).prop('selectedIndex',0);
             });
-
 
         });
     }(jQuery));

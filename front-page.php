@@ -116,6 +116,60 @@ get_header();
 
 
 
+
+<section class="section-development">
+  <div class="container">
+    <h2>База недвижимости</h2>
+    <div class="row">
+      <div class="col-md-3 mb-4">
+        <a href="/catalog/?posts=1&type=1&new=2#filterBlock" class="dev-item">
+          <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/db_1.jpg" alt="">
+          <div class="dev-title">
+            Квартиры
+          </div> <!-- //.dev-title -->
+        </a> <!-- //.dev-item -->
+      </div> <!-- //.col -->
+      <div class="col-md-3 mb-4">
+        <a href="/catalog/?posts=1&type=6#filterBlock" class="dev-item">
+          <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/db_2.jpg" alt="">
+          <div class="dev-title">
+            Загородная недвижимость
+          </div> <!-- //.dev-title -->
+        </a> <!-- //.dev-item -->
+      </div> <!-- //.col -->
+      <div class="col-md-3 mb-4">
+        <a href="/catalog/?posts=1&new=1#filterBlock" class="dev-item">
+          <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/db_3.jpg" alt="">
+          <div class="dev-title">
+            Квартиры в новостройках
+          </div> <!-- //.dev-title -->
+        </a> <!-- //.dev-item -->
+      </div> <!-- //.col -->
+      <div class="col-md-3 mb-4">
+        <a href="/trade-in/" class="dev-item">
+          <img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/img/db_4.jpg" alt="">
+          <div class="dev-title">
+            Программа Trade In
+          </div> <!-- //.dev-title -->
+        </a> <!-- //.dev-item -->
+      </div> <!-- //.col -->
+    </div> <!-- //.row -->
+  </div> <!-- //.container -->
+</section> <!-- //.section-development -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <?php
 if((int)get_field('best-size')){
   $best_size = (int)get_field('best-size');

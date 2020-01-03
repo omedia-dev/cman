@@ -85,8 +85,29 @@
         </div> <!-- //.item-location -->
         <?php endif; ?>
 
+        <?php if(get_field('gk_from') && get_field('gk_to')): ?>
+        <?php
+            $textFlats = array();
+            if(get_field('sysjk-1')){
+                array_push($textFlats, "1");
+            }
+            if(get_field('sysjk-2')){
+                array_push($textFlats, "2");
+            }
+            if(get_field('sysjk-3')){
+                array_push($textFlats, "3");
+            }
+            if(get_field('sysjk-4')){
+                array_push($textFlats, "4");
+            }
+        ?>
+        <div class="h5"><?php echo join(", ",$textFlats) . "-комн. " ?> квартиры от 
+            <strong><?php echo number_format((int) get_field('gk_from'), 0, ",", " "); ?></strong> руб. до 
+            <strong><?php echo number_format((int) get_field('gk_to'), 0, ",", " "); ?></strong> руб.
+        </div>
+        <?php endif; ?>
         <div class="item-short-description">
-            <?php echo wp_trim_words(get_field('gk_about'), 65, "..."); ?>
+            <?php echo wp_trim_words(get_field('gk_about'), 45, "..."); ?>
         </div> <!-- //.item-short-description -->
         <div>
             <?php //echo get_the_author_meta('ID'); echo get_current_user_id(); ?>

@@ -64,6 +64,9 @@ if ( isset($_GET["type"]) ) {
         case 5:
             $filter_type_label = 'коммерческая';
             break;
+        case 6:
+            $filter_type_label = array('дом', 'коттедж', 'участок');
+            break;
         default:
             $filter_type_label = 'all';
     }
@@ -282,7 +285,8 @@ get_header();
                         <select name="type" class="custom-select jsObjects">
                             <option value="0" <?php if ($filter_type == 0) echo 'selected'; ?>>Любой тип</option>
                             <option value="1" <?php if ($filter_type == 1) echo 'selected'; ?>>Квартиру</option>
-                            <option value="2" <?php if ($filter_type == 2) echo 'selected'; ?>>Дом / Коттедж</option>
+                            <option value="6" <?php if ($filter_type == 6) echo 'selected'; ?>>Загородная недвижимость</option>
+                            <option value="2" <?php if ($filter_type == 2) echo 'selected'; ?>>Дом</option>
                             <option value="3" <?php if ($filter_type == 3) echo 'selected'; ?>>Таунхаус</option>
                             <option value="4" <?php if ($filter_type == 4) echo 'selected'; ?>>Участок</option>
                             <option value="5" <?php if ($filter_type == 5) echo 'selected'; ?>>Коммерческая</option>
@@ -356,7 +360,7 @@ get_header();
 
         <div class="filter-result">
 
-            <?php if (1) : ?>
+            <?php if ($objects->posts) : ?>
                 <?php foreach ( $objects->posts as $post ) : setup_postdata( $post ); ?>
 
                     <?php
@@ -374,7 +378,7 @@ get_header();
                     <div class="emptyblock__img h1"><span class="lnr lnr-apartment"></span></div>
                     <div class="h1">По запросу объектов не найдено</div>
                     <div class="my-5">
-                        <a href="<?php echo get_post_type_archive_link('nedv_arenda'); ?>" class="btn btn-default">Сбросить фильтр</a>
+                        <a href="<?php echo get_permalink(); ?>" class="btn btn-default">Сбросить фильтр</a>
                     </div>
                 </div>
             <?php endif; ?>

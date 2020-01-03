@@ -2,7 +2,82 @@
 
 
 
-$childs_args = array(
+$price_min = "";
+$price_max = "";
+$filter_room = 0;
+$filter_level = 0;
+$filter_array = array();
+
+
+//Массивы имеющихся значений этажа и кол-ва комнат в квартирах
+$filterLevel = array();
+$filterRooms = array();
+$filterPrice = array();
+
+
+//Максимальная цена
+if ( isset($_GET["max"]) && (int)strip_tags($_GET["max"]) != 0 ) {
+  $price_max = (int) strip_tags($_GET["max"]);
+
+  array_push($filter_array, array(
+      'key'     => 'dom-price',
+      'compare' => '<=',
+      'type' => 'NUMERIC',
+      'value'   => $price_max,
+  ));
+}
+
+
+//Минимальная цена
+if( isset($_GET["min"]) && (int)strip_tags($_GET["min"]) != 0){
+  $price_min = (int) strip_tags($_GET["min"]);
+
+  array_push($filter_array, array(
+      'key'     => 'dom-price',
+      'compare' => '>=',
+      'type' => 'NUMERIC',
+      'value'   => $price_min,
+  ));
+}
+
+
+//Этаж
+if (isset($_GET["level"]) && strip_tags($_GET["level"]) != "") {
+
+  $filter_level = (int) strip_tags($_GET["level"]);
+
+  if($filter_level){
+      array_push($filter_array, array(
+          'key'     => 'dom-floor',
+          'value'   => $filter_level,
+      ));
+  }
+
+}
+
+
+
+//Комнат
+if (isset($_GET["rooms"]) && strip_tags($_GET["rooms"]) != "") {
+
+  $filter_room = (int) strip_tags($_GET["rooms"]);
+
+  if($filter_room){
+      array_push($filter_array, array(
+          'key'     => 'dom-rooms',
+          'value'   => $filter_room,
+      ));
+  }
+
+}
+
+
+
+
+
+
+//Предварительный запрос всех квартир в данном ЖК для наполнения фильтров
+$simpleArgs = array(
   'numberposts' => -1, // количество выводимых постов - все
   'post_type' => 'nedv_new', // тип поста - любой
   'post_status' => 'publish', // статус поста - любой
@@ -18,6 +93,38 @@ $childs_args = array(
     ),
   ],
 );
+$allPosts = get_posts($simpleArgs);
+
+foreach ($allPosts as $simpleChild){
+    //Наполняем массивы для фильтра этаж/комнаты
+    array_push($filterLevel, (int)get_field('dom-floor', $simpleChild->ID));
+    array_push($filterRooms, (int)get_field('dom-rooms', $simpleChild->ID));
+    array_push($filterPrice, (int)get_field('dom-price', $simpleChild->ID));
+
+}
+
+
+
+
+
+//Основной запрос всех квартир в данном ЖК (с фильтрами)
+$childs_args = array(
+  'numberposts' => -1, // количество выводимых постов - все
+  'post_type' => 'nedv_new', // тип поста - любой
+  'post_status' => 'publish', // статус поста - любой
+  'orderby' => 'meta_value_num',
+  'meta_key' => 'kvinjk-number',
+  'order' => 'ASC',
+  'meta_query' => [
+    'relation' => 'AND',
+    array(
+      'key'     => 'building-id',
+      'compare' => '=',
+      'value'   => get_the_ID(),
+    ),
+    $filter_array,
+  ],
+);
 $childs = get_posts($childs_args);
 
 
@@ -27,24 +134,55 @@ $childs = get_posts($childs_args);
 
 
 
+//массив названий корпусов
+$bildingCorp = array();
+
+//Массив квартир в этих корпусах
+$bildingFlats = array();
+
+foreach ($childs as $child){
+
+  if( !get_field('building-section', $child->ID)  ) continue;
 
 
+  $flatInfo = array(
+    'url'     => get_permalink($child->ID),
+    'number'  => get_field('kvinjk-number', $child->ID),
+    'section' => get_field('building-section', $child->ID),
+    'floor'   => get_field('dom-floor', $child->ID),
+    'rooms'   => get_field('dom-rooms', $child->ID),
+    'area'    => get_field('dom-area', $child->ID),
+    'pricem'  => number_format((int) get_field('kvinjk-pricem', $child->ID), 0, ",", " "),
+    'price'   => number_format((int) get_field('dom-price', $child->ID), 0, ",", " "),
+  );
 
 
+  //Наполняем массивы для фильтра этаж/комнаты
+  array_push($filterLevel, $flatInfo['floor']);
+  array_push($filterRooms, $flatInfo['rooms']);
+  array_push($filterPrice, (int)get_field('dom-price', $child->ID));
 
 
+  if( in_array( $flatInfo['section'], $bildingCorp ) ){
+    /*
+      Если данный корпус уже есть в массиве названий корпусов $bildingCorp: 
+      то находим его индекс и добавляем квартиру в массив квартир $bildingFlats[$index] 
+      с тем же индексом
+    */
+    $index = array_search( $flatInfo['section'], $bildingCorp);
 
+    array_push($bildingFlats[$index], $flatInfo );
 
+  } else {
+    /*
+      Иначе создаём новый элемент массива (новый корпус)
+      и добавляем квартиру в него
+    */
+    array_push($bildingCorp, $flatInfo['section']);
+    array_push($bildingFlats, array( $flatInfo ));
+  }
 
-
-
-
-
-
-
-
-
-
+}            
 
 ?>
 
@@ -181,8 +319,26 @@ $childs = get_posts($childs_args);
         <div class="container">
           <h2 class="page-title">Информация о комплексе <?php the_field('gk_title'); ?></h2>
           <?php if (get_field('gk_from') && get_field('gk_to')) : ?>
-            <h3>
-              Стоимость квартир:<small> от</small> <b><?php the_field('gk_from'); ?></b> <small><b>руб.</b> до</small> <b><?php the_field('gk_to'); ?></b> <small><b>руб.</b></small>
+            <h3 class="my-5">
+              Стоимость квартир:
+              <span class="d-inline-block">
+                <small> от </small><b class="d-inline-block"><?php echo number_format((int) get_field('gk_from'), 0, ",", " "); ?></b> <small><b>руб.</b></small>
+              </span>
+              <span class="d-inline-block">
+                <small>до </small><b class="d-inline-block"><?php echo number_format((int) get_field('gk_to'), 0, ",", " "); ?></b> <small><b>руб.</b></small>
+              </span>
+            </h3><br>
+          <?php elseif(count($filterPrice) > 2): ?>
+            <h3 class="my-5">
+              Стоимость квартир:
+              <span class="d-inline-block">
+                <small> от </small><b class="d-inline-block"><?php echo number_format((int) min($filterPrice), 0, ",", " "); ?></b> <small><b>руб.</b></small>
+              </span>
+              <span class="d-inline-block">
+                <small>до </small><b class="d-inline-block"><?php echo number_format((int) max($filterPrice), 0, ",", " "); ?></b> <small><b>руб.</b></small>
+              </span>
+                 
+                
             </h3><br>
           <?php endif ?>
           <div class="object-tabs">
@@ -282,173 +438,147 @@ $childs = get_posts($childs_args);
         </div> <!-- //.section-photogallery -->
       <?php endif; ?>
 
-      <?php
-
-      if ($childs) : ?>
-
-        <div class="section-for-sale">
-          <div class="container">
-            <h2 class="page-title">Квартиры на продажу</h2>
-            <!-- <form action="#" class="filter-form">
-          <div class="form-row justify-content-center">
-            <div class="col-md-2">
-              <select class="custom-select">
-                <option value="1">Площадь</option>
-                <option value="2">Площадь2</option>
-              </select>
-            </div>
-            <div class="col-md-1">
-              <select class="custom-select">
-                <option value="1">Этаж</option>
-                <option value="2">Этаж2</option>
-              </select>
-            </div>
-            <div class="col-md-2">
-              <select class="custom-select">
-                <option value="1">1 комната</option>
-                <option value="2">2 комнаты</option>
-                <option value="2">3 комнаты</option>
-              </select>
-            </div>
-            <div class="col-md-auto">
-              <div class="form-group">
-                <label for="range_from">От:</label>
-                <input type="text" class="form-control" id="range_from">
-                <div class="range-wrap">
-                  <div id="amount_range"></div>
-                </div>
+      <div class="section-for-sale" id="filterBlock">
+        <div class="container">
+          <h2 class="page-title">Квартиры на продажу</h2>
+          <form action="<?php echo get_permalink(); ?>#filterBlock" class="filter-form">
+            <div class="form-row justify-content-center">
+              <!-- <div class="col-md-2">
+                <select class="custom-select">
+                  <option value="1">Площадь</option>
+                  <option value="2">Площадь2</option>
+                </select>
+              </div> -->
+              <div class="col-md-3">
+                <select name="level" class="custom-select">
+                  <option value="">Выберите этаж</option>
+                  <?php 
+                  $filterLevelUnic = array_unique($filterLevel);
+                  sort($filterLevelUnic, SORT_NUMERIC);
+                  foreach ($filterLevelUnic as $value) {
+                    if($value == $filter_level){
+                      echo '<option value="' . $value . '" selected>' . $value . '-этаж</option>';
+                    }else{
+                      echo '<option value="' . $value . '">' . $value . '-этаж</option>';
+                    }
+                  } ?>
+                </select>
               </div>
-            </div>
-            <div class="col-md-auto">
-              <div class="form-group">
-                <label for="range_to">До:</label>
-                <input type="text" class="form-control" id="range_to">
+              <div class="col-md-3">
+                <select name="rooms" class="custom-select">
+                  <option value="">Число комнат</option>
+                  <?php 
+                  $filterRoomsUnic = array_unique($filterRooms);
+                  sort($filterRoomsUnic, SORT_NUMERIC);
+                  foreach ($filterRoomsUnic as $value) {
+                    if($value == $filter_room){
+                      echo '<option value="' . $value . '" selected>' . $value . '-комнат</option>';
+                    }else{
+                      echo '<option value="' . $value . '">' . $value . '-комнат</option>';
+                    }
+                  } ?>
+                </select>
               </div>
-            </div>
-            <div class="col-md-2">
-              <button type="submit" class="btn btn-default">Показать</button>
-            </div
-          </div>
-        </form> -->
-            <div class="filter-bottom">
-              <div class="row">
-                <div class="col-12 col-md-5">
-                  <div class="find">
-                    По Вашему запросу найдено: <?php echo count($childs) ?> объекта
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label for="range_from">От (₽):</label>
+                  <input type="number" min="0" name="min" value="<?php echo $price_min; ?>" class="form-control">
+                  <div class="range-wrap">
+                    <div id="amount_range"></div>
                   </div>
                 </div>
-                <!-- <div class="col-12 col-md-3">
-              <div class="">
-                Сортировка: <a href="#" class="link-default">по умолчанию</a>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label for="range_to">До (₽):</label>
+                  <input type="number" min="0" name="max" value="<?php echo $price_max; ?>" class="form-control">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-default">Показать</button>
               </div>
             </div>
-            <div class="col-12 col-md-2">
-              <div class="">
-                Выводить по: <a href="#" class="link-default">10</a>
+          </form>
+          <div class="filter-bottom">
+            <div class="row justify-content-between">
+              <div class="col-12 col-md-5">
+                <div class="find">
+                  По Вашему запросу найдено: <?php echo count($childs) ?> объекта
+                </div>
+              </div>
+              <div class="col-12 col-md-2">
+                <a href="<?php echo get_permalink(); ?>#filterBlock" class="link-grey">Сбросить фильтр</a> 
               </div>
             </div>
-            <div class="col-12 col-md-2">
-              <a href="#" class="link-grey">Сбросить фильтр</a> 
-            </div> -->
-              </div>
-            </div>
+          </div>
+          <?php if($bildingCorp) : ?>
+          <div class="fiter__corp nav nav-tabs" role="tablist">
+            <?php foreach ($bildingCorp as $key=>$corp) : ?>
+              <a data-toggle="tab" class="<?php if($key == 0): ?>active<?php endif; ?>" href="#nav-corp<?php echo $key; ?>" role="tab" aria-controls="nav-corp1"><?php echo $corp; ?></a>
+            <?php endforeach; ?>
+          </div>
+          <?php endif; ?>
+          <!-- <pre><?php //print_r($bildingFlats); ?></pre> -->
 
 
-            <?php 
+          <div class="tab-content" id="nav-tabContent">
+            <?php foreach ($bildingCorp as $key=>$corp) : ?>
+            <div class="tab-pane <?php if($key == 0): ?>fade show active<?php endif; ?>" id="nav-corp<?php echo $key; ?>" role="tabpanel">
+                <div class="table-responsive result-table <?php if(count($bildingFlats[$key]) > 20){ echo 'result-table-short'; } ?>">
+                  <table class="table table-striped jsSorttable">
+                    <thead>
+                      <tr>
+                        <th scope="col" data-sort-default>№</th>
+                        <th scope="col">Корпус</th>
+                        <th scope="col">Этаж</th>
+                        <th scope="col">Комнат</th>
+                        <th scope="col">Площадь</th>
+                        <th scope="col">Стоимость за м<sup>2</sup></th>
+                        <th scope="col">Стоимость</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($bildingFlats[$key] as $flat) : ?>
 
-              //массив названий корпусов
-              $bildingCorp = array();
-
-              //Массив квартир в этих корпусах
-              $bildingFlats = array();
-
-              foreach ($childs as $post){
-
-                if( !get_field('building-section', $post->ID)  ) continue;
-
-                $flatInfo = array(
-                  'url'     => get_permalink($post->ID),
-                  'number'  => get_field('kvinjk-number', $post->ID),
-                  'section' => get_field('building-section', $post->ID),
-                  'floor'   => get_field('dom-floor', $post->ID),
-                  'rooms'   => get_field('dom-rooms', $post->ID),
-                  'area'    => get_field('dom-area', $post->ID),
-                  'pricem'  => number_format((int) get_field('kvinjk-pricem', $post->ID), 0, ",", " "),
-                  'price'   => number_format((int) get_field('dom-price', $post->ID), 0, ",", " "),
-                );
-
-                if( in_array( get_field('building-section', $post->ID), $bildingCorp ) ){
-
-                  $index = array_search( get_field('building-section', $post->ID), $bildingCorp);
-
-                  array_push($bildingFlats[$index], $flatInfo );
-
-                } else {
-
-                  array_push($bildingCorp, get_field('building-section', $post->ID));
-                  array_push($bildingFlats, array( $flatInfo ));
-                  
-
-                }
-
-              }            
-            ?>
-            <div class="fiter__corp nav nav-tabs" role="tablist">
-              <?php foreach ($bildingCorp as $key=>$corp) : ?>
-                <a data-toggle="tab" class="<?php if($key == 0): ?>active<?php endif; ?>" href="#nav-corp<?php echo $key; ?>" role="tab" aria-controls="nav-corp1"><?php echo $corp; ?></a>
-              <?php endforeach; ?>
-            </div>
-            <!-- <pre><?php //print_r($bildingFlats); ?></pre> -->
-
-
-            <div class="tab-content" id="nav-tabContent">
-              <?php foreach ($bildingCorp as $key=>$corp) : ?>
-              <div class="tab-pane <?php if($key == 0): ?>fade show active<?php endif; ?>" id="nav-corp<?php echo $key; ?>" role="tabpanel">
-                  <div class="table-responsive result-table <?php if(count($bildingFlats[$key]) > 20){ echo 'result-table-short'; } ?>">
-                    <table class="table table-striped jsSorttable">
-                      <thead>
-                        <tr>
-                          <th scope="col" data-sort-default>№</th>
-                          <th scope="col">Корпус</th>
-                          <th scope="col">Этаж</th>
-                          <th scope="col">Комнат</th>
-                          <th scope="col">Площадь</th>
-                          <th scope="col">Стоимость за м<sup>2</sup></th>
-                          <th scope="col">Стоимость</th>
+                        <tr onclick="window.open('<?php echo $flat['url']; ?>', '_blank');">
+                          <td scope="row"><?php echo $flat['number']; ?></td>
+                          <td><?php echo $flat['section']; ?></td>
+                          <td><?php echo $flat['floor']; ?></td>
+                          <td><?php echo $flat['rooms']; ?></td>
+                          <td><?php echo $flat['area']; ?> м<sup>2</sup></td>
+                          <td data-sort='<?php echo (int)str_replace(" ","", $flat['pricem']); ?>'><?php echo $flat['pricem']; ?> руб.</td>
+                          <td data-sort='<?php echo (int)str_replace(" ","", $flat['price']); ?>'><?php echo $flat['price']; ?> руб.</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        <?php foreach ($bildingFlats[$key] as $flat) : ?>
 
-                          <tr onclick="window.open('<?php echo $flat['url']; ?>', '_blank');">
-                            <td scope="row"><?php echo $flat['number']; ?></td>
-                            <td><?php echo $flat['section']; ?></td>
-                            <td><?php echo $flat['floor']; ?></td>
-                            <td><?php echo $flat['rooms']; ?></td>
-                            <td><?php echo $flat['area']; ?> м<sup>2</sup></td>
-                            <td data-sort='<?php echo (int)str_replace(" ","", $flat['pricem']); ?>'><?php echo $flat['pricem']; ?> руб.</td>
-                            <td data-sort='<?php echo (int)str_replace(" ","", $flat['price']); ?>'><?php echo $flat['price']; ?> руб.</td>
-                          </tr>
-
-                        <?php wp_reset_postdata();
-                          endforeach; ?>
-                      </tbody>
-                    </table>
-                    <div class="showalltable">
-                      <button class="btn btn-default jsShowAllTable">Показать все квартиры</button>
-                    </div>
+                      <?php wp_reset_postdata();
+                        endforeach; ?>
+                    </tbody>
+                  </table>
+                  <div class="showalltable">
+                    <button class="btn btn-default jsShowAllTable">Показать все квартиры</button>
                   </div>
-                </div><!-- //tab-pane -->
-              <?php endforeach; ?>
-            </div><!-- //tab-content -->
+                </div>
+              </div><!-- //tab-pane -->
+            <?php endforeach; ?>
+
+            <?php if(!$bildingCorp): ?>
+              <div class="emptyblock my-5 pt-5 text-center">
+                  <div class="emptyblock__img h1"><span class="lnr lnr-apartment"></span></div>
+                  <div class="h1">По запросу объектов не найдено</div>
+                  <div class="my-5">
+                      <a href="<?php echo get_permalink(); ?>#filterBlock" class="btn btn-default">Сбросить фильтр</a>
+                  </div>
+              </div>
+            <?php endif; ?>
+
+          </div><!-- //tab-content -->
 
 
+          
 
-              
-          </div>
+            
         </div>
-
-      <?php endif; ?>
+      </div>
 
       <?php if (0) : ?>
         <div class="section-photogallery pt-5">

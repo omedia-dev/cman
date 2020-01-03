@@ -462,7 +462,12 @@ function create_new_flat($obj){
     $xml23 = $obj;
     
     //Заголовок объявления
-    $new_post_itle =  "Квартира №" . (string) $xml23->location->apartment . ". ЖК: " . (string) $xml23->{'building-name'};
+    if((string) $xml23->location->apartment){
+        $new_post_itle =  "Квартира №" . (string) $xml23->location->apartment . ". " . (string) $xml23->{'building-name'};
+    } else {
+        $new_post_itle =  "Квартира. " . (string) $xml23->{'building-name'};
+    }
+    
     
 
 
@@ -535,9 +540,21 @@ function create_new_flat($obj){
     
     update_field( 'dom-tall', (string) $xml23->{'ceiling-height'}, $newID );
     
-    update_field( 'building-section', (string)$xml23->{'building-section'}, $newID );
+    if((string)$xml23->{'building-section'}){
+        update_field( 'building-section', (string)$xml23->{'building-section'}, $newID );
+    } else {
+        update_field( 'building-section', "Основной", $newID );
+    }
 
-    update_field( 'kvinjk-number', (string)$xml23->location->apartment, $newID );
+
+    if((string)$xml23->{'kvinjk-number'}){
+        update_field( 'kvinjk-number', (string)$xml23->location->apartment, $newID );
+    } else {
+        update_field( 'kvinjk-number', "N", $newID );
+    }
+    
+
+    
     
     update_field('kvinjk-map', array(
         "address" => "",

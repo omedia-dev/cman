@@ -56,7 +56,7 @@
             <?php endif; ?>
         </div> <!-- //.item-price -->
         <div class="item-short-description">
-            Квартира новостройка в ЖК <?php echo get_the_title( (int)get_field('building-id') ); ?>.
+            Квартира новостройка в «<?php echo get_the_title( (int)get_field('building-id') ); ?>».
         </div> <!-- //.item-short-description -->
         <div>
             <?php //echo get_the_author_meta('ID'); echo get_current_user_id(); ?>

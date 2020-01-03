@@ -81,10 +81,11 @@ $userid = 'user_' . $current_user->ID;
 
       <?php if(is_super_admin()): ?>
         <div class="btn-group btn-group-lg mb-4 lk-button-group" role="group">
-          <a class="btn btn-light btn-group-lg" href="/addsale/">Добавить объявление о продаже</a>
-          <a class="btn btn-light btn-group-lg" href="/addnew/">Добавить объявление об аренде</a>
-          <a class="btn btn-light btn-group-lg" href="/addgk/">Добавить ЖК</a>
-          <a class="btn btn-light btn-group-lg" href="/myfeeds/">Управление XML-фидами</a>
+          <a class="btn btn-light btn-group-lg" target="_blank" href="/addsale/">Добавить продажа</a>
+          <a class="btn btn-light btn-group-lg" target="_blank" href="/addnew/">Добавить аренда</a>
+          <a class="btn btn-light btn-group-lg" target="_blank" href="/addgk/">Добавить ЖК</a>
+          <a class="btn btn-light btn-group-lg" target="_blank" href="/fixjk/">Обновить все ЖК</a>
+          <a class="btn btn-light btn-group-lg" target="_blank" href="/myfeeds/">Управление XML-фидами</a>
         </div>
       <?php endif; ?>
 
